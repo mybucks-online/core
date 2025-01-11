@@ -1,10 +1,10 @@
 # @mybucks.online/core
 
-This is a core part of mybucks.online crypto wallet, involving hashing and private key generation.
+This is a core part of [mybucks.online](https://mybucks.online) crypto wallet, involving hashing and private key generation.
 
 ## mybucks.online
 
-Mybucks.online is a **password-only, self-custodial and browser-based cryptocurrency wallet** built with Javascript. It generates a private key from your password and passcode using an industry-standard, verified **one-way hash function**. Your private key forms your account, allowing you to transfer, receive, and hold your crypto assets permanently.
+[Mybucks.online](https://mybucks.online) is a **password-only, self-custodial and browser-based cryptocurrency wallet** built with Javascript. It generates a private key from your password and passcode using an industry-standard, verified **one-way hash function**. Your private key forms your account, allowing you to transfer, receive, and hold your crypto assets permanently.
 
 ## Quick start
 
