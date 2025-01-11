@@ -29,6 +29,11 @@ const privateKey = getEvmPrivateKey(hash);
 console.log("Private key: ", privateKey);
 ```
 
+## Test
+```bash
+npm run test
+```
+
 ## Docs
 
 Find the docs [here](https://docs.mybucks.online).
