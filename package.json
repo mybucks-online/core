@@ -1,0 +1,35 @@
+{
+  "name": "@mybucks.online/core",
+  "version": "1.0.0",
+  "description": "Core module for mybucks.online crypto wallet",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mybucks-online/core.git"
+  },
+  "keywords": [
+    "wallet",
+    "crypto",
+    "password-only",
+    "multi-chain",
+    "self-custodial",
+    "browser-based",
+    "ethereum",
+    "tron",
+    "open-source"
+  ],
+  "author": "koko37",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mybucks-online/core/issues"
+  },
+  "homepage": "https://github.com/mybucks-online/core#readme",
+  "dependencies": {
+    "buffer": "^6.0.3",
+    "ethers": "^6.13.5",
+    "scrypt-js": "^3.0.1"
+  }
+}
