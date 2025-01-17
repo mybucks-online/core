@@ -1,6 +1,6 @@
 # @mybucks.online/core
 
-This is a core part of [mybucks.online](https://mybucks.online) crypto wallet, involving hashing and private key generation.
+This is a core part of [mybucks.online](https://mybucks.online) crypto wallet, involving hash and private key generation, generate and parse transfer-link token.
 
 ## mybucks.online
 
@@ -33,6 +33,21 @@ const privateKey = getEvmPrivateKey(hash);
 console.log("Private key: ", privateKey);
 ```
 
+### 3. Generate and parse (transfer-link's)token
+```javascript
+import { generateToken } from "@mybucks.online/core";
+const token = generateToken(password, passcode, network);
+
+console.log("https://app.mybucks.online?wallet=" + token);
+```
+
+```javascript
+import { parseToken } from "@mybucks.online/core";
+const [password, passcode, network] = parseToken(token);
+console.log("Account credentials are: ", password, passcode);
+console.log("Network: ", network);
+```
+
 ## Test
 ```bash
 npm run test
@@ -46,3 +61,4 @@ Find the docs [here](https://docs.mybucks.online).
 
 - https://github.com/mybucks.online/app
 - https://app.mybucks.online
+- https://app.mybucks.online/?wallet=VWnsSGRGVtb0FjY291bnQ1JgIxMTIzMjQCb3B0aW1pc20=_wNovT

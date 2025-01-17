@@ -1,8 +1,9 @@
 {
   "name": "@mybucks.online/core",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Core module for mybucks.online crypto wallet",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "test": "node test/index.test.js"
   },
@@ -19,7 +20,11 @@
     "browser-based",
     "ethereum",
     "tron",
-    "open-source"
+    "scrypt",
+    "keccak256",
+    "key-generation",
+    "open-source",
+    "mybucks.online"
   ],
   "author": "koko37",
   "license": "MIT",
@@ -30,6 +35,7 @@
   "dependencies": {
     "buffer": "^6.0.3",
     "ethers": "^6.13.5",
+    "nanoid": "^5.0.9",
     "scrypt-js": "^3.0.1"
   }
 }
