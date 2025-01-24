@@ -60,5 +60,7 @@ Find the docs [here](https://docs.mybucks.online).
 ## Live example
 
 - https://github.com/mybucks.online/app
-- https://app.mybucks.online
+- https://app.mybucks.online  
+  password: **DemoAccount5&**  
+  passcode: **112324**
 - https://app.mybucks.online/?wallet=VWnsSGRGVtb0FjY291bnQ1JgIxMTIzMjQCb3B0aW1pc20=_wNovT
