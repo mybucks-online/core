@@ -3,6 +3,7 @@ import { describe, test } from "node:test";
 import {
   generateHash,
   getEvmPrivateKey,
+  getEvmWalletAddress,
   generateToken,
   parseToken,
 } from "../index.js";
@@ -14,6 +15,7 @@ const DEMO_HASH =
   "af9a22d75f8f69d33fe8fc294e8f413219d9c75374dec07fda2e4a66868599609887a10e04981e17356d2c07432fc89c11089172fdf91c0015b9a4beef11e447";
 const DEMO_PRIVATE_KEY =
   "0x71743de900c63ed741263a2a4513c1b1829e80bd9f18d5d3a593e651b914cb3b";
+const DEMO_WALLET_ADDRESS = "0x347CEB6Bf002Ee1819009bA07d8dCAA95Efe6465"
 const DEMO_TOKEN =
   "VWnsSGRGVtb0FjY291bnQ1JgIxMTIzMjQCb3B0aW1pc20=_wNovT";
 
@@ -35,6 +37,15 @@ describe("getEvmPrivateKey", () => {
     const privateKey = getEvmPrivateKey(hash);
 
     assert.strictEqual(privateKey, DEMO_PRIVATE_KEY);
+  });
+});
+
+describe("getEvmWalletAddress", () => {
+  test("should return a valid wallet address", async () => {
+    const hash = await generateHash(DEMO_PASSWORD, DEMO_PASSCODE);
+    const address = getEvmWalletAddress(hash);
+
+    assert.strictEqual(address, DEMO_WALLET_ADDRESS);
   });
 });
 

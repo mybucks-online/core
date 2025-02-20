@@ -18,19 +18,26 @@ It fully runs on your **browser side** without using any storage or invoking any
 npm install @mybucks.online/core
 ```
 
-### 2. Generate hash and private-key
+### 2. Generate hash, private-key and wallet address
 
 ```javascript
-import { getEvmPrivateKey, generateHash } from "@mybucks.online/core";
+import { 
+  getEvmPrivateKey, 
+  getEvmWalletAddress, 
+  generateHash
+} from "@mybucks.online/core";
 
 const showProgress = (p) => {
   console.log(`progress: ${p * 100}%`);
 };
 
 const hash = await generateHash(password, passcode, showProgress);
-const privateKey = getEvmPrivateKey(hash);
 
+const privateKey = getEvmPrivateKey(hash);
 console.log("Private key: ", privateKey);
+
+const address = getEvmWalletAddress(hash);
+console.log("Address: ", address);
 ```
 
 ### 3. Generate and parse (transfer-link's)token
@@ -64,3 +71,4 @@ Find the docs [here](https://docs.mybucks.online).
   password: **DemoAccount5&**  
   passcode: **112324**
 - https://app.mybucks.online/?wallet=VWnsSGRGVtb0FjY291bnQ1JgIxMTIzMjQCb3B0aW1pc20=_wNovT
+- https://app.mybucks.online/?wallet=1jpFD8RGVtb0FjY291bnQ1JgIxMTIzMjQCYmFzZQ==fhk-GL

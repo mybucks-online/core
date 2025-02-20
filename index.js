@@ -45,12 +45,22 @@ export async function generateHash(password, passcode, cb = () => {}) {
 }
 
 /**
- * This function derives the EVM private key from the result of the scrypt hash.
- * @param {*} hash
+ * This function derives the EVM private key from a result of the scrypt hash.
+ * @param {*} hash scrypt hash result
  * @returns private key as string format
  */
 export function getEvmPrivateKey(hash) {
   return ethers.keccak256(abi.encode(["string"], [hash]));
+}
+
+/**
+ * This function returns the EVM wallet address from a result of the scrypt hash.
+ * @param {*} hash scrypt hash result
+ * @returns address as string format
+ */
+export function getEvmWalletAddress(hash) {
+  const wallet = new ethers.Wallet(getEvmPrivateKey(hash));
+  return wallet.address;
 }
 
 const URL_DELIMITER = "\u0002";
@@ -68,7 +78,7 @@ const NETWORKS = [
  * The transfer-link introduces a nice feature that enables the transfer of full ownership of a wallet account.
  * @param {*} password
  * @param {*} passcode
- * @param {*} network ethereum | polygon | arbitrum | optimism | bsc | avalanche | tron
+ * @param {*} network ethereum | polygon | arbitrum | optimism | bsc | avalanche | base | tron
  * @returns A string formatted as a transfer-link token, which can be appended to `https://app.mybucks.online?wallet=`
  */
 export function generateToken(password, passcode, network) {
