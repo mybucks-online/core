@@ -24,6 +24,7 @@ npm install @mybucks.online/core
 import { 
   getEvmPrivateKey, 
   getEvmWalletAddress, 
+  getTronWalletAddress,
   generateHash
 } from "@mybucks.online/core";
 
@@ -36,8 +37,11 @@ const hash = await generateHash(password, passcode, showProgress);
 const privateKey = getEvmPrivateKey(hash);
 console.log("Private key: ", privateKey);
 
-const address = getEvmWalletAddress(hash);
-console.log("Address: ", address);
+const address1 = getEvmWalletAddress(hash);
+console.log("EVM Address: ", address1);
+
+const address2 = getTronWalletAddress(hash);
+console.log("TRON Address: ", address2);
 ```
 
 ### 3. Generate and parse (transfer-link's)token

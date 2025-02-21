@@ -2,6 +2,7 @@ import { Buffer } from "buffer";
 import { ethers } from "ethers";
 import scryptJS from "scrypt-js";
 import { nanoid } from "nanoid";
+import { TronWeb } from "tronweb";
 
 const { scrypt } = scryptJS;
 const abi = new ethers.AbiCoder();
@@ -59,8 +60,19 @@ export function getEvmPrivateKey(hash) {
  * @returns address as string format
  */
 export function getEvmWalletAddress(hash) {
-  const wallet = new ethers.Wallet(getEvmPrivateKey(hash));
+  const privateKey = getEvmPrivateKey(hash);
+  const wallet = new ethers.Wallet(privateKey);
   return wallet.address;
+}
+
+/**
+ * This function returns the TRON wallet address from a result of the scrypt hash.
+ * @param {*} hash scrypt hash result
+ * @returns address as string format
+ */
+export function getTronWalletAddress(hash) {
+  const privateKey = getEvmPrivateKey(hash);
+  return TronWeb.address.fromPrivateKey(privateKey.slice(2));
 }
 
 const URL_DELIMITER = "\u0002";
@@ -71,6 +83,7 @@ const NETWORKS = [
   "optimism",
   "bsc",
   "avalanche",
+  "base",
   "tron",
 ];
 /**

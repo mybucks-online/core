@@ -1,6 +1,6 @@
 {
   "name": "@mybucks.online/core",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "Core module for mybucks.online crypto wallet",
   "main": "index.js",
   "type": "module",
@@ -36,6 +36,7 @@
     "buffer": "^6.0.3",
     "ethers": "^6.13.5",
     "nanoid": "^5.0.9",
-    "scrypt-js": "^3.0.1"
+    "scrypt-js": "^3.0.1",
+    "tronweb": "^6.0.1"
   }
 }
