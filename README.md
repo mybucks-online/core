@@ -70,7 +70,7 @@ Find the docs [here](https://docs.mybucks.online).
 
 ## Live example
 
-- https://github.com/mybucks.online/app
+- https://github.com/mybucks-online/app
 - https://app.mybucks.online  
   password: **DemoAccount5&**  
   passcode: **112324**
