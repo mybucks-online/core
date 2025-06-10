@@ -80,6 +80,41 @@ describe("generateToken", () => {
       DEMO_TRANSFER_TOKEN.slice(6, DEMO_TRANSFER_TOKEN.length - 6)
     );
   });
+
+  test("should return valid token for all networks", async () => {
+    assert.notStrictEqual(
+      generateToken(DEMO_PASSWORD, DEMO_PASSCODE, "ethereum"),
+      null
+    );
+    assert.notStrictEqual(
+      generateToken(DEMO_PASSWORD, DEMO_PASSCODE, "polygon"),
+      null
+    );
+    assert.notStrictEqual(
+      generateToken(DEMO_PASSWORD, DEMO_PASSCODE, "arbitrum"),
+      null
+    );
+    assert.notStrictEqual(
+      generateToken(DEMO_PASSWORD, DEMO_PASSCODE, "optimism"),
+      null
+    );
+    assert.notStrictEqual(
+      generateToken(DEMO_PASSWORD, DEMO_PASSCODE, "bsc"),
+      null
+    );
+    assert.notStrictEqual(
+      generateToken(DEMO_PASSWORD, DEMO_PASSCODE, "avalanche"),
+      null
+    );
+    assert.notStrictEqual(
+      generateToken(DEMO_PASSWORD, DEMO_PASSCODE, "base"),
+      null
+    );
+    assert.notStrictEqual(
+      generateToken(DEMO_PASSWORD, DEMO_PASSCODE, "tron"),
+      null
+    );
+  });
 });
 
 describe("parseToken", () => {
