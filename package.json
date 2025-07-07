@@ -31,7 +31,7 @@
   "bugs": {
     "url": "https://github.com/mybucks-online/core/issues"
   },
-  "homepage": "https://github.com/mybucks-online/core#readme",
+  "homepage": "https://mybucks.online",
   "dependencies": {
     "buffer": "^6.0.3",
     "ethers": "^6.13.5",
