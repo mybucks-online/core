@@ -1,6 +1,6 @@
 {
   "name": "@mybucks.online/core",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "Core module of Mybucks.online Crypto Wallet",
   "main": "index.js",
   "type": "module",
