@@ -4,11 +4,30 @@ This is a core part of [mybucks.online](https://mybucks.online) crypto wallet, i
 
 ## mybucks.online
 
-[Mybucks.online](https://mybucks.online) is a **password-only, self-custodial and browser-based cryptocurrency wallet** built with Javascript. It generates a private key from your password and passcode using an industry-standard, verified **one-way hash function**. Your private key forms your account, allowing you to transfer, receive, and hold your crypto assets instantly.
+[Mybucks.online](https://mybucks.online) is a **seedless, disposable crypto wallet** designed for **speed and convenience**. It generates a private key from your password and passcode using an industry-standard, verified **one-way hash function**. Your private key forms your account, allowing you to transfer, receive, and hold your crypto assets instantly.
 
 As a hash function, the **scrypt** Key Derivation Function (KDF) increases the computational effort required to crack passwords, effectively delaying **brute-force** attacks and making them impractical.
 
-It fully runs on your **browser side** without using any storage or invoking any 3rd-party APIs for key management. It instantly generates your private key from your password input, and whenever you close or refresh, there is no footprint. This absolutely protects your privacy.
+It fully runs on your **browser side** without using any storage or invoking any 3rd-party APIs for key management. It instantly generates your private key from your password input, and whenever you close or refresh, there is **no footprint**. This absolutely protects your privacy.
+
+### Zero Footprint  
+- No servers, no databases, no storage and no tracking.
+- 100% browser-based.
+- Your credentials never leave your device.
+- Your account is generated whenever you open it. Closing or refreshing your browser erases all traces/history.
+
+### Fast and Easy
+- No app installs, no browser extensions, no registration and no KYC.
+- You can create or open your wallet in seconds - all you need is your browser.
+- Password is easier to handle and remember than seed phrases
+
+### 1-Click Gifting
+- Stop asking your friends for their wallet addresses.
+- Send a wallet as a URL rather than just sending coins.
+- The recipient clicks the URL and takes full ownership instantly.
+- This makes **gifting or airdropping perfectly easy** and enables massive micro-gifting in seconds.
+
+By integrating this library, you can programmatically generate thousands of unique wallet links and distribute them via your own marketing platforms, email lists, or social media campaigns.
 
 ## Quick start
 
@@ -76,3 +95,4 @@ Find the docs [here](https://docs.mybucks.online).
   passcode: **112324**
 - https://app.mybucks.online/?wallet=VWnsSGRGVtb0FjY291bnQ1JgIxMTIzMjQCb3B0aW1pc20=_wNovT
 - https://app.mybucks.online/?wallet=1jpFD8RGVtb0FjY291bnQ1JgIxMTIzMjQCYmFzZQ==fhk-GL
+- https://codesandbox.io/p/sandbox/mybucks-online-key-generation-sandbox-lt53c3

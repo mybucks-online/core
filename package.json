@@ -1,6 +1,6 @@
 {
   "name": "@mybucks.online/core",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "description": "Core module of Mybucks.online Crypto Wallet",
   "main": "index.js",
   "type": "module",
@@ -12,9 +12,11 @@
     "url": "git+https://github.com/mybucks-online/core.git"
   },
   "keywords": [
+    "mybucks.online",
+    "seedless",
+    "disposable",
     "wallet",
     "crypto",
-    "password-only",
     "multi-chain",
     "self-custodial",
     "browser-based",
@@ -23,8 +25,7 @@
     "scrypt",
     "keccak256",
     "key-generation",
-    "open-source",
-    "mybucks.online"
+    "open-source"
   ],
   "author": "koko37",
   "license": "MIT",
