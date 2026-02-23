@@ -68,7 +68,7 @@ console.log("TRON Address: ", address2);
 import { generateToken } from "@mybucks.online/core";
 const token = generateToken(password, passcode, network);
 
-console.log("https://app.mybucks.online?wallet=" + token);
+console.log("https://app.mybucks.online/#wallet=" + token);
 ```
 
 ```javascript
@@ -93,6 +93,6 @@ Find the docs [here](https://docs.mybucks.online).
 - https://app.mybucks.online  
   password: **DemoAccount5&**  
   passcode: **112324**
-- https://app.mybucks.online/?wallet=VWnsSGRGVtb0FjY291bnQ1JgIxMTIzMjQCb3B0aW1pc20=_wNovT
-- https://app.mybucks.online/?wallet=1jpFD8RGVtb0FjY291bnQ1JgIxMTIzMjQCYmFzZQ==fhk-GL
+- https://app.mybucks.online/#wallet=VWnsSGRGVtb0FjY291bnQ1JgIxMTIzMjQCb3B0aW1pc20=_wNovT
+- https://app.mybucks.online/#wallet=1jpFD8RGVtb0FjY291bnQ1JgIxMTIzMjQCYmFzZQ==fhk-GL
 - https://codesandbox.io/p/sandbox/mybucks-online-key-generation-sandbox-lt53c3
