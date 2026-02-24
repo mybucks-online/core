@@ -4,11 +4,11 @@ This is a core part of [mybucks.online](https://mybucks.online) crypto wallet, i
 
 ## mybucks.online
 
-[Mybucks.online](https://mybucks.online) is a **seedless, disposable crypto wallet** designed for **speed and convenience**. It generates a private key from your password and passcode using an industry-standard, verified **one-way hash function**. Your private key forms your account, allowing you to transfer, receive, and hold your crypto assets instantly.
+[Mybucks.online](https://mybucks.online) is a **seedless, disposable crypto wallet** designed for **speed and convenience**. It generates a private key from your **passphrase and PIN** using an industry-standard, verified **one-way hash function**. Your private key forms your account, allowing you to transfer, receive, and hold your crypto assets instantly.
 
-As a hash function, the **scrypt** Key Derivation Function (KDF) increases the computational effort required to crack passwords, effectively delaying **brute-force** attacks and making them impractical.
+As a hash function, the **Scrypt** Key Derivation Function (KDF) increases the computational effort required to crack credentials, effectively delaying **brute-force** attacks and making them impractical.
 
-It fully runs on your **browser side** without using any storage or invoking any 3rd-party APIs for key management. It instantly generates your private key from your password input, and whenever you close or refresh, there is **no footprint**. This absolutely protects your privacy.
+It fully runs on your **browser side** without using any storage or invoking any 3rd-party APIs for key management. It instantly generates your private key from your credentials input, and whenever you close or refresh, there is **no footprint**. This absolutely protects your privacy.
 
 ### Zero Footprint  
 - No servers, no databases, no storage and no tracking.
@@ -19,7 +19,7 @@ It fully runs on your **browser side** without using any storage or invoking any
 ### Fast and Easy
 - No app installs, no browser extensions, no registration and no KYC.
 - You can create or open your wallet in seconds - all you need is your browser.
-- Password is easier to handle and remember than seed phrases
+- Passphrase is easier to handle and remember than seed phrases.
 
 ### 1-Click Gifting
 - Stop asking your friends for their wallet addresses.
@@ -51,7 +51,7 @@ const showProgress = (p) => {
   console.log(`progress: ${p * 100}%`);
 };
 
-const hash = await generateHash(password, passcode, showProgress);
+const hash = await generateHash(passphrase, pin, showProgress);
 
 const privateKey = getEvmPrivateKey(hash);
 console.log("Private key: ", privateKey);
@@ -66,15 +66,15 @@ console.log("TRON Address: ", address2);
 ### 3. Generate and parse (transfer-link's)token
 ```javascript
 import { generateToken } from "@mybucks.online/core";
-const token = generateToken(password, passcode, network);
+const token = generateToken(passphrase, pin, network);
 
 console.log("https://app.mybucks.online/#wallet=" + token);
 ```
 
 ```javascript
 import { parseToken } from "@mybucks.online/core";
-const [password, passcode, network] = parseToken(token);
-console.log("Account credentials are: ", password, passcode);
+const [passphrase, pin, network] = parseToken(token);
+console.log("Account credentials are: ", passphrase, pin);
 console.log("Network: ", network);
 ```
 
@@ -91,8 +91,8 @@ Find the docs [here](https://docs.mybucks.online).
 
 - https://github.com/mybucks-online/app
 - https://app.mybucks.online  
-  password: **DemoAccount5&**  
-  passcode: **112324**
+  passphrase: **DemoAccount5&**  
+  PIN: **112324**
 - https://app.mybucks.online/#wallet=VWnsSGRGVtb0FjY291bnQ1JgIxMTIzMjQCb3B0aW1pc20=_wNovT
 - https://app.mybucks.online/#wallet=1jpFD8RGVtb0FjY291bnQ1JgIxMTIzMjQCYmFzZQ==fhk-GL
 - https://codesandbox.io/p/sandbox/mybucks-online-key-generation-sandbox-lt53c3
