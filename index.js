@@ -15,17 +15,32 @@ const HASH_OPTIONS = {
   keyLen: 64,
 };
 
+export const PASSPHRASE_MIN_LENGTH = 12;
+export const PASSPHRASE_MAX_LENGTH = 128;
+export const PIN_MIN_LENGTH = 6;
+export const PIN_MAX_LENGTH = 16;
+
 /**
  * This function computes the scrypt hash using provided passphrase and pin inputs.
- * Passphrase and pin are validated with zxcvbn; weak values are rejected (returns "").
+ * Passphrase and pin are validated by length (see PASSPHRASE_MIN/MAX_LENGTH, PIN_MIN/MAX_LENGTH) and zxcvbn; invalid or weak values are rejected (returns "").
  *
- * @param {*} passphrase - Must have zxcvbn score >= 3
- * @param {*} pin - Must have zxcvbn score >= 1
+ * @param {*} passphrase - Length in [PASSPHRASE_MIN_LENGTH, PASSPHRASE_MAX_LENGTH], zxcvbn score >= 3
+ * @param {*} pin - Length in [PIN_MIN_LENGTH, PIN_MAX_LENGTH], zxcvbn score >= 1
  * @param {*} cb a callback function designed to receive the progress updates during the scrypt hashing process.
  * @returns hash result as string format, or "" if passphrase/pin missing or too weak
  */
 export async function generateHash(passphrase, pin, cb = () => {}) {
   if (!passphrase || !pin) {
+    return "";
+  }
+
+  const passphraseLen = String(passphrase).length;
+  if (passphraseLen < PASSPHRASE_MIN_LENGTH || passphraseLen > PASSPHRASE_MAX_LENGTH) {
+    return "";
+  }
+
+  const pinLen = String(pin).length;
+  if (pinLen < PIN_MIN_LENGTH || pinLen > PIN_MAX_LENGTH) {
     return "";
   }
 
