@@ -10,6 +10,10 @@ As a hash function, the **Scrypt** Key Derivation Function (KDF) increases the c
 
 It fully runs on your **browser side** without using any storage or invoking any 3rd-party APIs for key management. It instantly generates your private key from your credentials input, and whenever you close or refresh, there is **no footprint**. This absolutely protects your privacy.
 
+With mybucks.online, you can send cryptocurrency and even **wallet itself via a URL**. The recipient simply clicks the link to open the wallet and take full ownership. This feature allows you to create a one-time wallet and put stablecoins or memecoins into it. You can **transfer full ownership as a gift** without ever asking for a recipient's wallet address. These serve as a "starter" wallet for the recipients, who can then easily withdraw the funds into their own personal pockets or primary wallets.
+
+This is a powerful tool for **bulk distribution** and **massive airdrops** to many people simultaneously. You no longer need to ask for a wallet address or force users to connect their wallet to your app for a small $5 referral fee. You simply share the unique links through any messaging platform, social media, or email.
+
 ### Zero Footprint  
 - No servers, no databases, no storage and no tracking.
 - 100% browser-based.
@@ -38,6 +42,8 @@ npm install @mybucks.online/core
 ```
 
 ### 2. Generate hash, private-key and wallet address
+
+Passphrase and PIN are validated with **zxcvbn** before hashing. Weak passphrase or PIN will yield an empty hash or `null` token.
 
 ```javascript
 import { 
