@@ -29,6 +29,40 @@ describe("generateHash", () => {
     assert.strictEqual(hash, "");
   });
 
+  test("should return empty string for weak passphrase (zxcvbn score < 3)", async () => {
+    const weakPassphrases = [
+      "password",
+      "asdfasdf",
+      "123123123",
+      "P@ssw0rd",
+      "London123",
+      "oxford2024",
+      "John19821012",
+      "asdfASDFaSdf",
+      "qwerqwerqwer",
+      "1234567890",
+      "Julia18921012",
+    ];
+    for (const passphrase of weakPassphrases) {
+      const hash = await generateHash(passphrase, DEMO_PIN);
+      assert.strictEqual(hash, "");
+    }
+  });
+
+  test("should return empty string for weak pin (zxcvbn score < 1)", async () => {
+    const weakPins = [
+      "111111",
+      "111111111111111",
+      "12341234",
+      "aaaaaaaaaa",
+      "asdfasdf",
+    ];
+    for (const pin of weakPins) {
+      const hash = await generateHash(DEMO_PASSPHRASE, pin);
+      assert.strictEqual(hash, "", `Expected "" for weak pin "${pin}"`);
+    }
+  });
+
   test("should return scrypt hash result", async () => {
     const hash = await generateHash(DEMO_PASSPHRASE, DEMO_PIN);
     assert.strictEqual(hash, DEMO_HASH);
@@ -69,6 +103,42 @@ describe("generateToken", () => {
     assert.strictEqual(generateToken("passphrase", "", "ethereum"), null);
     assert.strictEqual(generateToken("passphrase", "123456", ""), null);
     assert.strictEqual(generateToken("passphrase", "123456", "invalid"), null);
+  });
+
+  test("should return null for weak passphrase (zxcvbn score < 3)", () => {
+    const weakPassphrases = [
+      "password",
+      "asdfasdf",
+      "123123123",
+      "P@ssw0rd",
+      "London123",
+      "oxford2024",
+      "asdfASDFaSdf",
+      "qwerqwerqwer",
+      "1234567890",
+    ];
+    for (const passphrase of weakPassphrases) {
+      assert.strictEqual(
+        generateToken(passphrase, DEMO_PIN, DEMO_NETWORK),
+        null
+      );
+    }
+  });
+
+  test("should return null for weak pin (zxcvbn score < 1)", () => {
+    const weakPins = [
+      "111111",
+      "111111111111111",
+      "12341234",
+      "aaaaaaaaaa",
+      "asdfasdf",
+    ];
+    for (const pin of weakPins) {
+      assert.strictEqual(
+        generateToken(DEMO_PASSPHRASE, pin, DEMO_NETWORK),
+        null
+      );
+    }
   });
 
   test("should return valid token", async () => {

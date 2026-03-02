@@ -3,6 +3,7 @@ import { ethers } from "ethers";
 import scryptJS from "scrypt-js";
 import { nanoid } from "nanoid";
 import { TronWeb } from "tronweb";
+import zxcvbn from "zxcvbn";
 
 const { scrypt } = scryptJS;
 const abi = new ethers.AbiCoder();
@@ -16,14 +17,25 @@ const HASH_OPTIONS = {
 
 /**
  * This function computes the scrypt hash using provided passphrase and pin inputs.
+ * Passphrase and pin are validated with zxcvbn; weak values are rejected (returns "").
  *
- * @param {*} passphrase
- * @param {*} pin
+ * @param {*} passphrase - Must have zxcvbn score >= 3
+ * @param {*} pin - Must have zxcvbn score >= 1
  * @param {*} cb a callback function designed to receive the progress updates during the scrypt hashing process.
- * @returns hash result as string format
+ * @returns hash result as string format, or "" if passphrase/pin missing or too weak
  */
 export async function generateHash(passphrase, pin, cb = () => {}) {
   if (!passphrase || !pin) {
+    return "";
+  }
+
+  const passphraseResult = zxcvbn(passphrase);
+  if (passphraseResult.score < 3) {
+    return "";
+  }
+
+  const pinResult = zxcvbn(pin);
+  if (pinResult.score < 1) {
     return "";
   }
 
@@ -87,18 +99,27 @@ const NETWORKS = [
   "tron",
 ];
 /**
- * This function generates a transfer-link by combining credentials and randomly generated padding.
- * The transfer-link introduces a nice feature that enables the transfer of full ownership of a wallet account.
- * @param {*} passphrase
- * @param {*} pin
+ * This function generates a transfer-link token by encoding passphrase and PIN by Base64 and adding random padding.
+ * The transfer-link enables users to send their full ownership of a wallet account to another user for gifting or airdropping.
+ * Passphrase and PIN are validated with zxcvbn; weak values are rejected (returns null).
+ *
+ * @param {*} passphrase - Must have zxcvbn score >= 3
+ * @param {*} PIN - Must have zxcvbn score >= 1
  * @param {*} network ethereum | polygon | arbitrum | optimism | bsc | avalanche | base | tron
- * @returns A string formatted as a transfer-link token, which can be appended to `https://app.mybucks.online?wallet=`
+ * @returns A string formatted as a transfer-link token, which can be appended to `https://app.mybucks.online#wallet=`, or null if invalid/weak
  */
 export function generateToken(passphrase, pin, network) {
   if (!passphrase || !pin || !network) {
     return null;
   }
   if (!NETWORKS.find((n) => n === network)) {
+    return null;
+  }
+
+  if (zxcvbn(passphrase).score < 3) {
+    return null;
+  }
+  if (zxcvbn(pin).score < 1) {
     return null;
   }
 
