@@ -133,10 +133,10 @@ const NETWORKS = [
 /**
  * This function generates a transfer-link token by encoding passphrase and PIN by Base64 and adding random padding.
  * The transfer-link enables users to send their full ownership of a wallet account to another user for gifting or airdropping.
- * Passphrase and PIN are validated with zxcvbn; weak values are rejected (returns null).
+ * Passphrase and PIN are validated by length (see PASSPHRASE_MIN/MAX_LENGTH, PIN_MIN/MAX_LENGTH) and zxcvbn; invalid or weak values are rejected (returns null).
  *
- * @param {*} passphrase - Must have zxcvbn score >= 3
- * @param {*} PIN - Must have zxcvbn score >= 1
+ * @param {string} passphrase - Length in [PASSPHRASE_MIN_LENGTH, PASSPHRASE_MAX_LENGTH], zxcvbn score >= 3
+ * @param {string} pin - Length in [PIN_MIN_LENGTH, PIN_MAX_LENGTH], zxcvbn score >= 1
  * @param {*} network ethereum | polygon | arbitrum | optimism | bsc | avalanche | base | tron
  * @returns A string formatted as a transfer-link token, which can be appended to `https://app.mybucks.online#wallet=`, or null if invalid/weak
  */
@@ -145,6 +145,16 @@ export function generateToken(passphrase, pin, network) {
     return null;
   }
   if (!NETWORKS.find((n) => n === network)) {
+    return null;
+  }
+
+  const passphraseLen = passphrase.length;
+  if (passphraseLen < PASSPHRASE_MIN_LENGTH || passphraseLen > PASSPHRASE_MAX_LENGTH) {
+    return null;
+  }
+
+  const pinLen = pin.length;
+  if (pinLen < PIN_MIN_LENGTH || pinLen > PIN_MAX_LENGTH) {
     return null;
   }
 
