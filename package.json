@@ -5,7 +5,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "test": "node test/index.test.js"
+    "test": "node test/index.test.js && node test/legacy.test.js"
   },
   "repository": {
     "type": "git",
