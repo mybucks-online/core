@@ -8,10 +8,17 @@ import zxcvbn from "zxcvbn";
 const { scrypt } = scryptJS;
 const abi = new ethers.AbiCoder();
 
-const HASH_OPTIONS = {
+const HASH_OPTIONS_LEGACY = {
   N: 32768, // CPU/memory cost parameter, 2^15
   r: 8, // block size parameter
   p: 5, // parallelization parameter
+  keyLen: 64,
+};
+
+const HASH_OPTIONS = {
+  N: 131072, // CPU/memory cost parameter, 2^17, OWASP recommendation
+  r: 8, // block size parameter
+  p: 1, // parallelization parameter
   keyLen: 64,
 };
 
@@ -24,22 +31,23 @@ export const PIN_MAX_LENGTH = 16;
  * This function computes the scrypt hash using provided passphrase and pin inputs.
  * Passphrase and pin are validated by length (see PASSPHRASE_MIN/MAX_LENGTH, PIN_MIN/MAX_LENGTH) and zxcvbn; invalid or weak values are rejected (returns "").
  *
- * @param {*} passphrase - Length in [PASSPHRASE_MIN_LENGTH, PASSPHRASE_MAX_LENGTH], zxcvbn score >= 3
- * @param {*} pin - Length in [PIN_MIN_LENGTH, PIN_MAX_LENGTH], zxcvbn score >= 1
+ * @param {string} passphrase - Length in [PASSPHRASE_MIN_LENGTH, PASSPHRASE_MAX_LENGTH], zxcvbn score >= 3
+ * @param {string} pin - Length in [PIN_MIN_LENGTH, PIN_MAX_LENGTH], zxcvbn score >= 1
  * @param {*} cb a callback function designed to receive the progress updates during the scrypt hashing process.
+ * @param {boolean} legacy - when true, uses the legacy behavior (HASH_OPTIONS_LEGACY and the original salt generation using the last 4 characters of passphrase plus the full pin); when false, uses HASH_OPTIONS and a keccak256-based salt derived from ABI-encoding passphrase and pin
  * @returns hash result as string format, or "" if passphrase/pin missing or too weak
  */
-export async function generateHash(passphrase, pin, cb = () => {}) {
+export async function generateHash(passphrase, pin, cb = () => {}, legacy = false) {
   if (!passphrase || !pin) {
     return "";
   }
 
-  const passphraseLen = String(passphrase).length;
+  const passphraseLen = passphrase.length;
   if (passphraseLen < PASSPHRASE_MIN_LENGTH || passphraseLen > PASSPHRASE_MAX_LENGTH) {
     return "";
   }
 
-  const pinLen = String(pin).length;
+  const pinLen = pin.length;
   if (pinLen < PIN_MIN_LENGTH || pinLen > PIN_MAX_LENGTH) {
     return "";
   }
@@ -54,18 +62,27 @@ export async function generateHash(passphrase, pin, cb = () => {}) {
     return "";
   }
 
-  const salt = `${passphrase.slice(-4)}${pin}`;
-
   const passwordBuffer = Buffer.from(passphrase);
-  const saltBuffer = Buffer.from(salt);
+  let saltBuffer;
+
+  if (legacy) {
+    const legacySalt = `${passphrase.slice(-4)}${pin}`;
+    saltBuffer = Buffer.from(legacySalt);
+  } else {
+    const encoded = abi.encode(["string", "string"], [passphrase, pin]);
+    const saltHash = ethers.keccak256(encoded);
+    saltBuffer = Buffer.from(saltHash.slice(2), "hex");
+  }
+
+  const options = legacy ? HASH_OPTIONS_LEGACY : HASH_OPTIONS;
 
   const hashBuffer = await scrypt(
     passwordBuffer,
     saltBuffer,
-    HASH_OPTIONS.N,
-    HASH_OPTIONS.r,
-    HASH_OPTIONS.p,
-    HASH_OPTIONS.keyLen,
+    options.N,
+    options.r,
+    options.p,
+    options.keyLen,
     cb
   );
 
