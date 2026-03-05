@@ -8,6 +8,10 @@ import zxcvbn from "zxcvbn";
 const { scrypt } = scryptJS;
 const abi = new ethers.AbiCoder();
 
+// Domain separator for the default (non-legacy) KDF path to prevent
+// cross-protocol and cross-version hash reuse.
+const KDF_DOMAIN_SEPARATOR = "mybucks.core.generateHash.v2";
+
 const HASH_OPTIONS_LEGACY = {
   N: 32768, // CPU/memory cost parameter, 2^15
   r: 8, // block size parameter
@@ -69,7 +73,10 @@ export async function generateHash(passphrase, pin, cb = () => {}, legacy = fals
     const legacySalt = `${passphrase.slice(-4)}${pin}`;
     saltBuffer = Buffer.from(legacySalt);
   } else {
-    const encoded = abi.encode(["string", "string"], [passphrase, pin]);
+    const encoded = abi.encode(
+      ["string", "string", "string"],
+      [KDF_DOMAIN_SEPARATOR, passphrase, pin]
+    );
     const saltHash = ethers.keccak256(encoded);
     saltBuffer = Buffer.from(saltHash.slice(2), "hex");
   }
