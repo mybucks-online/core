@@ -10,7 +10,7 @@ const abi = new ethers.AbiCoder();
 
 // Domain separator for the default (non-legacy) KDF path to prevent
 // cross-protocol and cross-version hash reuse.
-const KDF_DOMAIN_SEPARATOR = "mybucks.core.generateHash.v2";
+const KDF_DOMAIN_SEPARATOR = "mybucks.online-core.generateHash.v2";
 
 const HASH_OPTIONS_LEGACY = {
   N: 32768, // CPU/memory cost parameter, 2^15
