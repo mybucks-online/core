@@ -14,11 +14,11 @@ const DEMO_PIN = "112324";
 const DEMO_NETWORK = "optimism";
 
 const DEMO_HASH =
-  "c3733ca45b8a5922648702c0586755e7f1d9c1f340cc0a177e42953adcbf933ebd6f4583d7ab6e190f0a43222481e32a1a739d13ba7512a7b06d704a1ae2f631";
+  "f3700823c7161aea1153ad7a5aba2634f45271f7fa9536e3b39789a7978f5f5df55678df94d4a407b7c6b4ab367293be671953c9e63d8c6d821cdaa70083c315";
 const DEMO_PRIVATE_KEY =
-  "0xcf0f5b97481ed9bb8ed37fcc24bab8e7498b35fad281e976f9ce819507f5b39d";
-const DEMO_WALLET_EVM_ADDRESS = "0x33eDe612Ab10655Cfce7f894CFd58196E2B50BcF";
-const DEMO_WALLET_TRON_ADDRESS = "TEhnTLQQhvVe4JLLVasfso6x5G6iWDRa1o";
+  "0xd06fcd946e193fffff5771f50ac9c89c7d8bd2f46620edc78fbe860fa02088dc";
+const DEMO_WALLET_EVM_ADDRESS = "0xdbb151163216f62353BE9689c0FD37DAd7f20cab";
+const DEMO_WALLET_TRON_ADDRESS = "TVzqQFeJrWJqafjMUntKh8aopkXssbxkFb";
 
 describe("generateHash (default)", () => {
   test("should return empty string if passphrase or pin is blank", async () => {
