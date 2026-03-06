@@ -285,27 +285,30 @@ describe("generateToken", () => {
 });
 
 describe("parseToken", () => {
-  test("should return [passphrase, pin, network] for token generated with legacy=false", () => {
+  test("should return [passphrase, pin, network, legacy] for token generated with legacy=false", () => {
     const token = generateToken(DEMO_PASSPHRASE, DEMO_PIN, DEMO_NETWORK, false);
-    const [passphrase, pin, network] = parseToken(token);
+    const [passphrase, pin, network, legacy] = parseToken(token);
     assert.strictEqual(passphrase, DEMO_PASSPHRASE);
     assert.strictEqual(pin, DEMO_PIN);
     assert.strictEqual(network, DEMO_NETWORK);
+    assert.strictEqual(legacy, false);
   });
 
-  test("should return [passphrase, pin, network] for token generated with legacy=true", () => {
+  test("should return [passphrase, pin, network, legacy] for token generated with legacy=true", () => {
     const token = generateToken(DEMO_PASSPHRASE, DEMO_PIN, DEMO_NETWORK, true);
-    const [passphrase, pin, network] = parseToken(token);
+    const [passphrase, pin, network, legacy] = parseToken(token);
     assert.strictEqual(passphrase, DEMO_PASSPHRASE);
     assert.strictEqual(pin, DEMO_PIN);
     assert.strictEqual(network, DEMO_NETWORK);
+    assert.strictEqual(legacy, true);
   });
 
-  test("should parse DEMO_LEGACY_TOKEN and return DEMO_PASSPHRASE, DEMO_PIN, DEMO_NETWORK", () => {
-    const [passphrase, pin, network] = parseToken(DEMO_LEGACY_TOKEN);
+  test("should parse DEMO_LEGACY_TOKEN and return DEMO_PASSPHRASE, DEMO_PIN, DEMO_NETWORK and legacy=true", () => {
+    const [passphrase, pin, network, legacy] = parseToken(DEMO_LEGACY_TOKEN);
     assert.strictEqual(passphrase, DEMO_PASSPHRASE);
     assert.strictEqual(pin, DEMO_PIN);
     assert.strictEqual(network, DEMO_NETWORK);
+    assert.strictEqual(legacy, true);
   });
 });
 
