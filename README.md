@@ -84,6 +84,25 @@ console.log("Account credentials are: ", passphrase, pin);
 console.log("Network: ", network);
 ```
 
+## Changes (default vs legacy)
+
+To make the wallet more secure and resilient against attacks, and to meet standards and follow best practices (e.g. NIST SP 800-132, OWASP, RFC 7914), we introduced a new version that is now the default. A **`legacy`** flag is available for backward compatibility with existing wallets and tokens.
+
+**Scrypt parameters (default)**  
+- **N** is increased from 2^15 to **2^17** to raise the memory cost and make GPU/ASIC brute-force attacks much harder.  
+- **p** is reduced from 5 to **1** so hashing time stays the same or lower for users while resistance to brute-force is improved.
+
+**Salt generation (default)**  
+- Legacy used only the **last 4 characters of the passphrase** plus the pin, which discarded most of the passphrase entropy.  
+- The default now derives the salt from the **full passphrase and pin** via a structured encoding and adds a **domain separator** so hashes are bound to this KDF and not reusable in other protocols or versions.
+
+**Token generation (default)**  
+- Legacy encoded the transfer-link token by **concatenating** passphrase, pin and network with a delimiter, which is ambiguous for some inputs.  
+- The default uses **ABI encoding** for the payload so there is no concatenation ambiguity.  
+- `parseToken` accepts both legacy and default token formats automatically.
+
+Use `generateHash(passphrase, pin, cb, true)` or `generateToken(passphrase, pin, network, true)` only when you need to match existing legacy wallets or tokens.
+
 ## Test
 ```bash
 npm run test
