@@ -99,7 +99,7 @@ To make the wallet more secure and resilient against attacks, and to meet standa
 
 **Token generation (default)**  
 - Legacy encoded the transfer-link token by **concatenating** passphrase, pin and network with a delimiter, which is ambiguous for some inputs.  
-- The default uses **ABI encoding** for the payload so there is no concatenation ambiguity.  
+- The default uses a **compact length-prefixed** payload (version byte + lengths + UTF-8 bytes) so there is no concatenation ambiguity and the URL fragment stays short.  
 - `parseToken` accepts both legacy and default token formats automatically and returns `[passphrase, pin, network, legacy]`, where `legacy` is `true` if the token was in legacy format.
 
 Use `generateHash(passphrase, pin, cb, true)` or `generateToken(passphrase, pin, network, true)` only when you need to match existing legacy wallets or tokens.
