@@ -14,16 +14,15 @@ const DEMO_PIN = "112324";
 const DEMO_NETWORK = "optimism";
 
 const DEMO_HASH =
-  "af9a22d75f8f69d33fe8fc294e8f413219d9c75374dec07fda2e4a66868599609887a10e04981e17356d2c07432fc89c11089172fdf91c0015b9a4beef11e447";
+  "70198936dedf67b784a0a7271fca9e562467754eb012a8c9f3a97aaf4e2be725b0995ebfc9112a18395214b3357368f7e2812a23d013c2b42dec0701bc44dd68";
 const DEMO_PRIVATE_KEY =
-  "0x71743de900c63ed741263a2a4513c1b1829e80bd9f18d5d3a593e651b914cb3b";
-const DEMO_WALLET_EVM_ADDRESS = "0x347CEB6Bf002Ee1819009bA07d8dCAA95Efe6465";
-const DEMO_WALLET_TRON_ADDRESS = "TEkjnbpr2cTgRFgmrbv2Gb7GdgupZ5Sh3A";
+  "0x942d4f1a0e4bc3b525db81eacba59131ceef498e401142b821613e20539b89e7";
+const DEMO_WALLET_EVM_ADDRESS = "0xC3Bb18Ed137577e5482fA7C6AEaca8b3F68Dafba";
+const DEMO_WALLET_TRON_ADDRESS = "TTp8uDeig42XdefAoTGWTj61uNMYvEVnXR";
 
-const DEMO_TRANSFER_TOKEN =
-  "VWnsSGRGVtb0FjY291bnQ1JgIxMTIzMjQCb3B0aW1pc20=_wNovT";
+const DEMO_LEGACY_TOKEN = "VWnsSGRGVtb0FjY291bnQ1JgIxMTIzMjQCb3B0aW1pc20=_wNovT";
 
-describe("generateHash", () => {
+describe("generateHash (default)", () => {
   test("should return empty string if passphrase or pin is blank", async () => {
     const hash = await generateHash("", "");
     assert.strictEqual(hash, "");
@@ -63,35 +62,80 @@ describe("generateHash", () => {
     }
   });
 
-  test("should return scrypt hash result", async () => {
+  test("should return empty string if passphrase length is out of range", async () => {
+    const tooShort = "Abc!23xy"; // strong-ish but below min length
+    const tooLong = "Str0ng-and-L0ng-Passphrase-!".repeat(6); // strong but above max length
+
+    const hashShort = await generateHash(tooShort, DEMO_PIN);
+    const hashLong = await generateHash(tooLong, DEMO_PIN);
+
+    assert.strictEqual(hashShort, "");
+    assert.strictEqual(hashLong, "");
+  });
+
+  test("should return empty string if pin length is out of range", async () => {
+    const tooShort = "12aB!"; // strong-ish but below min length
+    const tooLong = "9aB!9aB!9aB!9aB!9"; // strong but above max length (> 16 chars)
+
+    const hashShort = await generateHash(DEMO_PASSPHRASE, tooShort);
+    const hashLong = await generateHash(DEMO_PASSPHRASE, tooLong);
+
+    assert.strictEqual(hashShort, "");
+    assert.strictEqual(hashLong, "");
+  });
+
+  test("should return valid scrypt hash result", async () => {
     const hash = await generateHash(DEMO_PASSPHRASE, DEMO_PIN);
     assert.strictEqual(hash, DEMO_HASH);
   });
+
+  test("should return same hash for same passphrase and pin (deterministic)", async () => {
+    const hash1 = await generateHash(DEMO_PASSPHRASE, DEMO_PIN);
+    const hash2 = await generateHash(DEMO_PASSPHRASE, DEMO_PIN);
+    assert.strictEqual(hash1, hash2);
+  });
+
+  test("should generate different results for same naive concatenation", async () => {
+    // These two pairs share the same concatenated string
+    // passphrase1 + pin1 === passphrase2 + pin2
+    const passphrase1 = "My-1st-car-was-a-red-Ford-2005!";
+    const pin1 = "909011";
+    const passphrase2 = "My-1st-car-was-a-red-Ford-";
+    const pin2 = "2005!909011";
+
+    const hash1 = await generateHash(passphrase1, pin1);
+    const hash2 = await generateHash(passphrase2, pin2);
+
+    assert.notStrictEqual(hash1, "");
+    assert.notStrictEqual(hash2, "");
+    assert.notStrictEqual(
+      hash1,
+      hash2,
+      "hashes must differ even when naive concatenation matches"
+    );
+  });
 });
 
-describe("getEvmPrivateKey", () => {
-  test("should return 256bit private key", async () => {
+describe("getEvmPrivateKey (default)", () => {
+  test("should return 256bit private key from default hash", async () => {
     const hash = await generateHash(DEMO_PASSPHRASE, DEMO_PIN);
     const privateKey = getEvmPrivateKey(hash);
-
     assert.strictEqual(privateKey, DEMO_PRIVATE_KEY);
   });
 });
 
-describe("getEvmWalletAddress", () => {
-  test("should return a valid wallet address", async () => {
+describe("getEvmWalletAddress (default)", () => {
+  test("should return a valid wallet address from default hash", async () => {
     const hash = await generateHash(DEMO_PASSPHRASE, DEMO_PIN);
     const address = getEvmWalletAddress(hash);
-
     assert.strictEqual(address, DEMO_WALLET_EVM_ADDRESS);
   });
 });
 
-describe("getTronWalletAddress", () => {
-  test("should return a valid wallet address", async () => {
+describe("getTronWalletAddress (default)", () => {
+  test("should return a valid TRON wallet address from default hash", async () => {
     const hash = await generateHash(DEMO_PASSPHRASE, DEMO_PIN);
     const address = getTronWalletAddress(hash);
-
     assert.strictEqual(address, DEMO_WALLET_TRON_ADDRESS);
   });
 });
@@ -103,6 +147,20 @@ describe("generateToken", () => {
     assert.strictEqual(generateToken("passphrase", "", "ethereum"), null);
     assert.strictEqual(generateToken("passphrase", "123456", ""), null);
     assert.strictEqual(generateToken("passphrase", "123456", "invalid"), null);
+  });
+
+  test("should return null if passphrase length is out of range", () => {
+    const tooShort = "Abc!23xy"; // strong-ish but below min length
+    const tooLong = "Str0ng-and-L0ng-Passphrase-!".repeat(6); // strong but above max length
+    assert.strictEqual(generateToken(tooShort, DEMO_PIN, DEMO_NETWORK), null);
+    assert.strictEqual(generateToken(tooLong, DEMO_PIN, DEMO_NETWORK), null);
+  });
+
+  test("should return null if pin length is out of range", () => {
+    const tooShort = "12aB!"; // strong-ish but below min length
+    const tooLong = "9aB!9aB!9aB!9aB!9"; // strong but above max length (> 16 chars)
+    assert.strictEqual(generateToken(DEMO_PASSPHRASE, tooShort, DEMO_NETWORK), null);
+    assert.strictEqual(generateToken(DEMO_PASSPHRASE, tooLong, DEMO_NETWORK), null);
   });
 
   test("should return null for weak passphrase (zxcvbn score < 3)", () => {
@@ -141,68 +199,137 @@ describe("generateToken", () => {
     }
   });
 
-  test("should return valid token", async () => {
-    const token = generateToken(DEMO_PASSPHRASE, DEMO_PIN, DEMO_NETWORK);
+  test("should return valid token with padding (legacy=false)", () => {
+    const token = generateToken(DEMO_PASSPHRASE, DEMO_PIN, DEMO_NETWORK, false);
+    assert.ok(token !== null);
+    assert.ok(token.length >= 6 + 6, "token has 6-char prefix and suffix padding");
+  });
 
-    // The first and last 6 characters serve as random padding.
+  test("should return valid token with padding (legacy=true)", () => {
+    const token = generateToken(DEMO_PASSPHRASE, DEMO_PIN, DEMO_NETWORK, true);
+    assert.ok(token !== null);
+    assert.ok(token.length >= 6 + 6, "token has 6-char prefix and suffix padding");
+  });
+
+  test("should return different token for same inputs when legacy true vs false", () => {
+    const tokenLegacy = generateToken(DEMO_PASSPHRASE, DEMO_PIN, DEMO_NETWORK, true);
+    const tokenAbi = generateToken(DEMO_PASSPHRASE, DEMO_PIN, DEMO_NETWORK, false);
+    const payloadLegacy = tokenLegacy.slice(6, tokenLegacy.length - 6);
+    const payloadAbi = tokenAbi.slice(6, tokenAbi.length - 6);
+    assert.notStrictEqual(payloadLegacy, payloadAbi, "payloads must differ (legacy vs ABI encoding)");
+  });
+
+  test("should generate different results for same naive concatenation (legacy=false)", () => {
+    const network = "polygon";
+    const passphrase1 = "My-1st-car-was-a-red-Ford-2005!";
+    const pin1 = "909011";
+    const passphrase2 = "My-1st-car-was-a-red-Ford-";
+    const pin2 = "2005!909011";
     assert.strictEqual(
-      token.slice(6, token.length - 6),
-      DEMO_TRANSFER_TOKEN.slice(6, DEMO_TRANSFER_TOKEN.length - 6)
+      passphrase1 + pin1 + network,
+      passphrase2 + pin2 + network,
+      "same naive concatenation"
+    );
+
+    const token1 = generateToken(passphrase1, pin1, network, false);
+    const token2 = generateToken(passphrase2, pin2, network, false);
+
+    assert.ok(token1 !== null);
+    assert.ok(token2 !== null);
+    const payload1 = token1.slice(6, token1.length - 6);
+    const payload2 = token2.slice(6, token2.length - 6);
+    assert.notStrictEqual(
+      payload1,
+      payload2,
+      "payloads must differ even when naive concatenation matches"
     );
   });
 
-  test("should return valid token for all networks", async () => {
-    assert.notStrictEqual(
-      generateToken(DEMO_PASSPHRASE, DEMO_PIN, "ethereum"),
-      null
-    );
-    assert.notStrictEqual(
-      generateToken(DEMO_PASSPHRASE, DEMO_PIN, "polygon"),
-      null
-    );
-    assert.notStrictEqual(
-      generateToken(DEMO_PASSPHRASE, DEMO_PIN, "arbitrum"),
-      null
-    );
-    assert.notStrictEqual(
-      generateToken(DEMO_PASSPHRASE, DEMO_PIN, "optimism"),
-      null
-    );
-    assert.notStrictEqual(
-      generateToken(DEMO_PASSPHRASE, DEMO_PIN, "bsc"),
-      null
-    );
-    assert.notStrictEqual(
-      generateToken(DEMO_PASSPHRASE, DEMO_PIN, "avalanche"),
-      null
-    );
-    assert.notStrictEqual(
-      generateToken(DEMO_PASSPHRASE, DEMO_PIN, "base"),
-      null
-    );
-    assert.notStrictEqual(
-      generateToken(DEMO_PASSPHRASE, DEMO_PIN, "tron"),
-      null
-    );
+  test("should return valid token for all networks (legacy=false)", () => {
+    const networks = [
+      "ethereum",
+      "polygon",
+      "arbitrum",
+      "optimism",
+      "bsc",
+      "avalanche",
+      "base",
+      "tron",
+    ];
+    for (const network of networks) {
+      assert.notStrictEqual(
+        generateToken(DEMO_PASSPHRASE, DEMO_PIN, network, false),
+        null
+      );
+    }
+  });
+
+  test("should return valid token for all networks (legacy=true)", () => {
+    const networks = [
+      "ethereum",
+      "polygon",
+      "arbitrum",
+      "optimism",
+      "bsc",
+      "avalanche",
+      "base",
+      "tron",
+    ];
+    for (const network of networks) {
+      assert.notStrictEqual(
+        generateToken(DEMO_PASSPHRASE, DEMO_PIN, network, true),
+        null
+      );
+    }
   });
 });
 
 describe("parseToken", () => {
-  test("should return array of passphrase, pin, and network", () => {
-    const [passphrase, pin, network] = parseToken(DEMO_TRANSFER_TOKEN);
-
+  test("should return [passphrase, pin, network, legacy] for token generated with legacy=false", () => {
+    const token = generateToken(DEMO_PASSPHRASE, DEMO_PIN, DEMO_NETWORK, false);
+    const [passphrase, pin, network, legacy] = parseToken(token);
     assert.strictEqual(passphrase, DEMO_PASSPHRASE);
     assert.strictEqual(pin, DEMO_PIN);
     assert.strictEqual(network, DEMO_NETWORK);
+    assert.strictEqual(legacy, false);
+  });
+
+  test("should return [passphrase, pin, network, legacy] for token generated with legacy=true", () => {
+    const token = generateToken(DEMO_PASSPHRASE, DEMO_PIN, DEMO_NETWORK, true);
+    const [passphrase, pin, network, legacy] = parseToken(token);
+    assert.strictEqual(passphrase, DEMO_PASSPHRASE);
+    assert.strictEqual(pin, DEMO_PIN);
+    assert.strictEqual(network, DEMO_NETWORK);
+    assert.strictEqual(legacy, true);
+  });
+
+  test("should parse DEMO_LEGACY_TOKEN and return DEMO_PASSPHRASE, DEMO_PIN, DEMO_NETWORK and legacy=true", () => {
+    const [passphrase, pin, network, legacy] = parseToken(DEMO_LEGACY_TOKEN);
+    assert.strictEqual(passphrase, DEMO_PASSPHRASE);
+    assert.strictEqual(pin, DEMO_PIN);
+    assert.strictEqual(network, DEMO_NETWORK);
+    assert.strictEqual(legacy, true);
   });
 });
 
 describe("generateToken and parseToken", () => {
-  test("should be compatible and return correct result", () => {
+  test("should round-trip when legacy=false", () => {
     const testPassphrase = "My-1st-car-was-a-red-Ford-2005!";
     const testPin = "909011";
     const testNetwork = "polygon";
-    const token = generateToken(testPassphrase, testPin, testNetwork);
+    const token = generateToken(testPassphrase, testPin, testNetwork, false);
+
+    const [passphrase, pin, network] = parseToken(token);
+    assert.strictEqual(passphrase, testPassphrase);
+    assert.strictEqual(pin, testPin);
+    assert.strictEqual(network, testNetwork);
+  });
+
+  test("should round-trip when legacy=true", () => {
+    const testPassphrase = "My-1st-car-was-a-red-Ford-2005!";
+    const testPin = "909011";
+    const testNetwork = "polygon";
+    const token = generateToken(testPassphrase, testPin, testNetwork, true);
 
     const [passphrase, pin, network] = parseToken(token);
     assert.strictEqual(passphrase, testPassphrase);
