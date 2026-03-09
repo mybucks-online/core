@@ -119,6 +119,6 @@ Find the docs [here](https://docs.mybucks.online).
 - https://app.mybucks.online  
   passphrase: **DemoAccount5&**  
   PIN: **112324**
-- https://app.mybucks.online/#wallet=VWnsSGRGVtb0FjY291bnQ1JgIxMTIzMjQCb3B0aW1pc20=_wNovT
-- https://app.mybucks.online/#wallet=1jpFD8RGVtb0FjY291bnQ1JgIxMTIzMjQCYmFzZQ==fhk-GL
+- https://app.mybucks.online/#wallet=Db1zfXAg1EZW1vQWNjb3VudDUmBjExMjMyNAhvcHRpbWlzbQ==mlUEbO (default)
+- https://app.mybucks.online/#wallet=VWnsSGRGVtb0FjY291bnQ1JgIxMTIzMjQCb3B0aW1pc20=_wNovT (legacy)
 - https://codesandbox.io/p/sandbox/mybucks-online-key-generation-sandbox-lt53c3
