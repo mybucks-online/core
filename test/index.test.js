@@ -21,6 +21,7 @@ const DEMO_WALLET_EVM_ADDRESS = "0xC3Bb18Ed137577e5482fA7C6AEaca8b3F68Dafba";
 const DEMO_WALLET_TRON_ADDRESS = "TTp8uDeig42XdefAoTGWTj61uNMYvEVnXR";
 
 const DEMO_LEGACY_TOKEN = "VWnsSGRGVtb0FjY291bnQ1JgIxMTIzMjQCb3B0aW1pc20=_wNovT";
+const DEMO_DEFAULT_TOKEN = "Db1zfXAg1EZW1vQWNjb3VudDUmBjExMjMyNAhvcHRpbWlzbQ==mlUEbO";
 
 describe("generateHash (default)", () => {
   test("should return empty string if passphrase or pin is blank", async () => {
@@ -282,6 +283,13 @@ describe("generateToken", () => {
       );
     }
   });
+
+  test("should handle passphrase containing URL_DELIMITER when legacy=false", () => {
+    const delimiter = String.fromCharCode(2);
+    const trickyPassphrase = `Demo${delimiter}Account5&`;
+    const token = generateToken(trickyPassphrase, DEMO_PIN, DEMO_NETWORK, false);
+    assert.ok(token !== null);
+  });
 });
 
 describe("parseToken", () => {
@@ -310,6 +318,14 @@ describe("parseToken", () => {
     assert.strictEqual(network, DEMO_NETWORK);
     assert.strictEqual(legacy, true);
   });
+
+  test("should parse DEMO_DEFAULT_TOKEN and return DEMO_PASSPHRASE, DEMO_PIN, DEMO_NETWORK and legacy=false", () => {
+    const [passphrase, pin, network, legacy] = parseToken(DEMO_DEFAULT_TOKEN);
+    assert.strictEqual(passphrase, DEMO_PASSPHRASE);
+    assert.strictEqual(pin, DEMO_PIN);
+    assert.strictEqual(network, DEMO_NETWORK);
+    assert.strictEqual(legacy, false);
+  });
 });
 
 describe("generateToken and parseToken", () => {
@@ -325,6 +341,20 @@ describe("generateToken and parseToken", () => {
     assert.strictEqual(network, testNetwork);
   });
 
+  test("should round-trip passphrase containing URL_DELIMITER when legacy=false", () => {
+    const delimiter = String.fromCharCode(2);
+    const testPassphrase = `My${delimiter}-1st-car-was-a-red-Ford-2005!`;
+    const testPin = "909011";
+    const testNetwork = "polygon";
+    const token = generateToken(testPassphrase, testPin, testNetwork, false);
+
+    const [passphrase, pin, network, legacy] = parseToken(token);
+    assert.strictEqual(passphrase, testPassphrase);
+    assert.strictEqual(pin, testPin);
+    assert.strictEqual(network, testNetwork);
+    assert.strictEqual(legacy, false);
+  });
+
   test("should round-trip when legacy=true", () => {
     const testPassphrase = "My-1st-car-was-a-red-Ford-2005!";
     const testPin = "909011";
@@ -335,5 +365,21 @@ describe("generateToken and parseToken", () => {
     assert.strictEqual(passphrase, testPassphrase);
     assert.strictEqual(pin, testPin);
     assert.strictEqual(network, testNetwork);
+  });
+
+  test("should not safely round-trip passphrase containing URL_DELIMITER when legacy=true", () => {
+    const delimiter = String.fromCharCode(2);
+    const testPassphrase = `My${delimiter}-1st-car-was-a-red-Ford-2005!`;
+    const testPin = "909011";
+    const testNetwork = "polygon";
+    const token = generateToken(testPassphrase, testPin, testNetwork, true);
+
+    const [passphrase, pin, network, legacy] = parseToken(token);
+    assert.notStrictEqual(
+      passphrase,
+      testPassphrase,
+      "legacy format cannot safely encode passphrase containing URL_DELIMITER",
+    );
+    assert.strictEqual(legacy, true);
   });
 });
