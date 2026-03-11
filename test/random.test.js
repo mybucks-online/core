@@ -44,6 +44,7 @@ describe("randomPassphrase", () => {
 
   test("should return different values on each call", () => {
     const results = Array.from({ length: 10 }, () => randomPassphrase());
+    results.forEach((p, i) => console.log(`  passphrase[${i}]: ${p}`));
     assert.strictEqual(new Set(results).size, results.length, "randomPassphrase returned duplicate values");
   });
 });
@@ -71,6 +72,7 @@ describe("randomPIN", () => {
 
   test("should return different values on each call", () => {
     const results = Array.from({ length: 10 }, () => randomPIN());
+    results.forEach((p, i) => console.log(`  pin[${i}]: ${p}`));
     assert.strictEqual(new Set(results).size, results.length, "randomPIN returned duplicate values");
   });
 });
