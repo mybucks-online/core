@@ -85,6 +85,19 @@ console.log("Network: ", network);
 console.log("Legacy token: ", legacy); // true if token was in legacy format
 ```
 
+### 4. Generate random credentials
+
+`randomPassphrase` and `randomPIN` generate cryptographically random credentials that are guaranteed to pass the zxcvbn strength thresholds required by `generateHash` (`PASSPHRASE_MIN_ZXCVBN_SCORE = 3`, `PIN_MIN_ZXCVBN_SCORE = 1`).
+
+```javascript
+import { randomPassphrase, randomPIN } from "@mybucks.online/core";
+
+const passphrase = randomPassphrase(); // e.g. "Ax3!-bQ2#-mK7@-zP1$"
+const pin = randomPIN();               // e.g. "k4r9w2"
+
+const hash = await generateHash(passphrase, pin, showProgress);
+```
+
 ## Changes (default vs legacy)
 
 To make the wallet more secure and resilient against attacks, and to meet standards and follow best practices (e.g. NIST SP 800-132, OWASP, RFC 7914), we introduced a new version that is now the default. A **`legacy`** flag is available for backward compatibility with existing wallets and tokens.
