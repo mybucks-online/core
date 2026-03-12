@@ -10,8 +10,14 @@ const DIGITS = "0123456789";
 const SYMBOLS = "`~!@#$%^&*()-_+={}[]\\|:;\"'<>,.?/";
 
 function randomInt(max) {
-  const arr = new Uint32Array(1);
-  globalThis.crypto.getRandomValues(arr);
+  if (max > 255) {
+    throw new RangeError(`max must be <= 255, got ${max}`);
+  }
+  const arr = new Uint8Array(1);
+  const limit = 256 - (256 % max);
+  do {
+    globalThis.crypto.getRandomValues(arr);
+  } while (arr[0] >= limit);
   return arr[0] % max;
 }
 
