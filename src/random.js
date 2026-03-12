@@ -1,4 +1,3 @@
-import { randomInt } from "crypto";
 import zxcvbn from "zxcvbn";
 import {
   PASSPHRASE_MIN_ZXCVBN_SCORE,
@@ -9,6 +8,12 @@ const UPPER = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 const LOWER = "abcdefghijklmnopqrstuvwxyz";
 const DIGITS = "0123456789";
 const SYMBOLS = "`~!@#$%^&*()-_+={}[]\\|:;\"'<>,.?/";
+
+function randomInt(max) {
+  const arr = new Uint32Array(1);
+  globalThis.crypto.getRandomValues(arr);
+  return arr[0] % max;
+}
 
 function randomChar(charset) {
   return charset[randomInt(charset.length)];
