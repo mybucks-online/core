@@ -25,6 +25,9 @@ const HASH_OPTIONS = {
   keyLen: 64,
 };
 
+export const PASSPHRASE_MIN_ZXCVBN_SCORE = 3;
+export const PIN_MIN_ZXCVBN_SCORE = 1;
+
 export const PASSPHRASE_MIN_LENGTH = 12;
 export const PASSPHRASE_MAX_LENGTH = 128;
 export const PIN_MIN_LENGTH = 6;
@@ -64,12 +67,12 @@ export async function generateHash(
   }
 
   const passphraseResult = zxcvbn(passphrase);
-  if (passphraseResult.score < 3) {
+  if (passphraseResult.score < PASSPHRASE_MIN_ZXCVBN_SCORE) {
     return "";
   }
 
   const pinResult = zxcvbn(pin);
-  if (pinResult.score < 1) {
+  if (pinResult.score < PIN_MIN_ZXCVBN_SCORE) {
     return "";
   }
 

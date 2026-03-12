@@ -1,8 +1,11 @@
 import assert from "node:assert";
 import { describe, test } from "node:test";
+import zxcvbn from "zxcvbn";
 import { randomPassphrase, randomPIN } from "../index.js";
-
-const SYMBOLS = "`~!@#$%^&*()-_+={}[]\\|:;\"'<>,.?/";
+import {
+  PASSPHRASE_MIN_ZXCVBN_SCORE,
+  PIN_MIN_ZXCVBN_SCORE,
+} from "../src/credentials.js";
 
 describe("randomPassphrase", () => {
   test("should return a string", () => {
@@ -21,31 +24,22 @@ describe("randomPassphrase", () => {
     assert.strictEqual(passphrase.length, 6 * 3 + 2);
   });
 
-  test("should contain at least one uppercase letter", () => {
+  test("should have zxcvbn score >= 3", () => {
     const passphrase = randomPassphrase();
-    assert.ok(/[A-Z]/.test(passphrase), "missing uppercase letter");
-  });
-
-  test("should contain at least one lowercase letter", () => {
-    const passphrase = randomPassphrase();
-    assert.ok(/[a-z]/.test(passphrase), "missing lowercase letter");
-  });
-
-  test("should contain at least one digit", () => {
-    const passphrase = randomPassphrase();
-    assert.ok(/[0-9]/.test(passphrase), "missing digit");
-  });
-
-  test("should contain at least one symbol from SYMBOLS", () => {
-    const passphrase = randomPassphrase();
-    const hasSymbol = passphrase.split("").some((c) => SYMBOLS.includes(c));
-    assert.ok(hasSymbol, "missing symbol");
+    assert.ok(
+      zxcvbn(passphrase).score >= PASSPHRASE_MIN_ZXCVBN_SCORE,
+      `passphrase zxcvbn score is below ${PASSPHRASE_MIN_ZXCVBN_SCORE}`,
+    );
   });
 
   test("should return different values on each call", () => {
     const results = Array.from({ length: 10 }, () => randomPassphrase());
     results.forEach((p, i) => console.log(`  passphrase[${i}]: ${p}`));
-    assert.strictEqual(new Set(results).size, results.length, "randomPassphrase returned duplicate values");
+    assert.strictEqual(
+      new Set(results).size,
+      results.length,
+      "randomPassphrase returned duplicate values",
+    );
   });
 });
 
@@ -70,9 +64,21 @@ describe("randomPIN", () => {
     assert.ok(/^[0-9a-z]+$/.test(pin), "PIN contains invalid characters");
   });
 
+  test("should have zxcvbn score >= 1", () => {
+    const pin = randomPIN();
+    assert.ok(
+      zxcvbn(pin).score >= PIN_MIN_ZXCVBN_SCORE,
+      `PIN zxcvbn score is below ${PIN_MIN_ZXCVBN_SCORE}`,
+    );
+  });
+
   test("should return different values on each call", () => {
     const results = Array.from({ length: 10 }, () => randomPIN());
     results.forEach((p, i) => console.log(`  pin[${i}]: ${p}`));
-    assert.strictEqual(new Set(results).size, results.length, "randomPIN returned duplicate values");
+    assert.strictEqual(
+      new Set(results).size,
+      results.length,
+      "randomPIN returned duplicate values",
+    );
   });
 });

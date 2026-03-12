@@ -1,4 +1,9 @@
 import { randomInt } from "crypto";
+import zxcvbn from "zxcvbn";
+import {
+  PASSPHRASE_MIN_ZXCVBN_SCORE,
+  PIN_MIN_ZXCVBN_SCORE,
+} from "./credentials.js";
 
 const UPPER = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 const LOWER = "abcdefghijklmnopqrstuvwxyz";
@@ -16,8 +21,7 @@ function generateSegment(length, charset) {
 /**
  * Generates a random passphrase in a UUID-inspired hyphen-separated block format (e.g. "xxxx-xxxx-xxxx-xxxx").
  * Each block is composed of characters from uppercase, lowercase, digits, and symbols.
- * Guaranteed to contain at least one uppercase letter, one lowercase letter, one digit, and one symbol.
- * Retries recursively until all character class requirements are met.
+ * Retries recursively until zxcvbn score >= 3 (required by generateHash).
  *
  * @param {number} blockLength - Number of characters per block (default: 4)
  * @param {number} numBlocks - Number of blocks (default: 4)
@@ -29,12 +33,7 @@ export function randomPassphrase(blockLength = 4, numBlocks = 4) {
   );
   const passphrase = segments.join("-");
 
-  const hasUpper = /[A-Z]/.test(passphrase);
-  const hasLower = /[a-z]/.test(passphrase);
-  const hasDigit = /[0-9]/.test(passphrase);
-  const hasSymbol = passphrase.split("").some((c) => SYMBOLS.includes(c));
-
-  if (!hasUpper || !hasLower || !hasDigit || !hasSymbol) {
+  if (zxcvbn(passphrase).score < PASSPHRASE_MIN_ZXCVBN_SCORE) {
     return randomPassphrase(blockLength, numBlocks);
   }
 
@@ -43,11 +42,17 @@ export function randomPassphrase(blockLength = 4, numBlocks = 4) {
 
 /**
  * Generates a random PIN composed of digits and lowercase letters.
+ * Retries until the PIN passes zxcvbn score >= 1 (required by generateHash).
  *
  * @param {number} length - Number of characters in the PIN (default: 6)
  * @returns {string} A randomly generated PIN string
  */
 export function randomPIN(length = 6) {
-  return generateSegment(length, DIGITS + LOWER);
-}
+  const pin = generateSegment(length, DIGITS + LOWER);
 
+  if (zxcvbn(pin).score < PIN_MIN_ZXCVBN_SCORE) {
+    return randomPIN(length);
+  }
+
+  return pin;
+}
