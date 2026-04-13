@@ -327,6 +327,40 @@ describe("parseToken", () => {
     assert.strictEqual(network, DEMO_NETWORK);
     assert.strictEqual(legacy, false);
   });
+
+  test("should parse token after hash-fragment character normalization", () => {
+    const plusToken =
+      "tmeNhvAhsxe1lhSWwtJyhZLkQ+LUk2dzZeLi1TI0FPQzwIMWNuZ3I0ZTkHcG9seWdvbg==GB_ha6";
+    const spaceToken =
+      "tmeNhvAhsxe1lhSWwtJyhZLkQ LUk2dzZeLi1TI0FPQzwIMWNuZ3I0ZTkHcG9seWdvbg==GB_ha6";
+    assert.deepStrictEqual(
+      parseToken(spaceToken),
+      parseToken(plusToken),
+      "space should be treated as '+'"
+    );
+
+    const plusToken2 =
+      "gUerR9AhtTbmhANnYtST08PnFRLUMsZyUxMy1+OHc8byIINXJ6cG5oamkHcG9seWdvbg==2lSvB2";
+    const dashToken2 =
+      "gUerR9AhtTbmhANnYtST08PnFRLUMsZyUxMy1-OHc8byIINXJ6cG5oamkHcG9seWdvbg==2lSvB2";
+    assert.deepStrictEqual(
+      parseToken(dashToken2),
+      parseToken(plusToken2),
+      "'-' should be treated as '+' in payload normalization"
+    );
+  });
+
+  test("should parse token when base64 padding is stripped", () => {
+    const tokenWithPadding =
+      "tmeNhvAhsxe1lhSWwtJyhZLkQ+LUk2dzZeLi1TI0FPQzwIMWNuZ3I0ZTkHcG9seWdvbg==GB_ha6";
+    const tokenWithoutPadding =
+      "tmeNhvAhsxe1lhSWwtJyhZLkQ+LUk2dzZeLi1TI0FPQzwIMWNuZ3I0ZTkHcG9seWdvbgGB_ha6";
+    assert.deepStrictEqual(
+      parseToken(tokenWithoutPadding),
+      parseToken(tokenWithPadding),
+      "missing '=' padding should be recovered"
+    );
+  });
 });
 
 describe("generateToken and parseToken", () => {
