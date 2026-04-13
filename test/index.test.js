@@ -8,6 +8,7 @@ import {
   generateToken,
   parseToken,
 } from "../index.js";
+import { randomPassphrase, randomPIN } from "../src/random.js";
 
 const DEMO_PASSPHRASE = "DemoAccount5&";
 const DEMO_PIN = "112324";
@@ -381,5 +382,25 @@ describe("generateToken and parseToken", () => {
       "legacy format cannot safely encode passphrase containing URL_DELIMITER",
     );
     assert.strictEqual(legacy, true);
+  });
+
+  test("should round-trip random passphrase and PIN for 100 cases (integration)", () => {
+    const testNetwork = "polygon";
+
+    for (let i = 0; i < 100; i++) {
+      const testPassphrase = randomPassphrase();
+      const testPin = randomPIN();
+      const token = generateToken(testPassphrase, testPin, testNetwork, false);
+
+      const [passphrase, pin, network, legacy] = parseToken(token);
+      assert.strictEqual(
+        passphrase,
+        testPassphrase,
+        `passphrase mismatch at case ${i}`,
+      );
+      assert.strictEqual(pin, testPin, `pin mismatch at case ${i}`);
+      assert.strictEqual(network, testNetwork, `network mismatch at case ${i}`);
+      assert.strictEqual(legacy, false, `legacy flag mismatch at case ${i}`);
+    }
   });
 });
