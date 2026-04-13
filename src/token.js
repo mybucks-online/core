@@ -87,7 +87,12 @@ export function generateToken(passphrase, pin, network, legacy = false) {
     ]);
   }
 
-  const base64Encoded = payloadBuffer.toString("base64");
+  // Convert Base64 to Base64URL so token remains safe in URL hash/query contexts.
+  const base64Encoded = payloadBuffer
+    .toString("base64")
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/g, "");
   const padding = nanoid(12);
   return padding.slice(0, 6) + base64Encoded + padding.slice(6);
 }
@@ -100,7 +105,15 @@ export function generateToken(passphrase, pin, network, legacy = false) {
  */
 export function parseToken(token) {
   const payload = token.slice(6, token.length - 6);
-  const decoded = Buffer.from(payload, "base64");
+  // Normalize payload for robust URL transport:
+  // - URLSearchParams converts "+" to " "
+  // - base64url may use "-" and "_" and omit padding
+  const normalized = payload
+    .replace(/ /g, "+")
+    .replace(/-/g, "+")
+    .replace(/_/g, "/");
+  const padded = normalized + "=".repeat((4 - (normalized.length % 4)) % 4);
+  const decoded = Buffer.from(padded, "base64");
 
   if (decoded[0] === TOKEN_VERSION_COMPACT) {
     let i = 1;
