@@ -33,22 +33,24 @@ export const PASSPHRASE_MAX_LENGTH = 128;
 export const PIN_MIN_LENGTH = 6;
 export const PIN_MAX_LENGTH = 16;
 
+export type ScryptProgressCallback = (progress: number) => void;
+
 /**
- * This function computes the scrypt hash using provided passphrase and pin inputs.
+ * Computes the scrypt hash from passphrase and pin.
  * Passphrase and pin are validated by length (see PASSPHRASE_MIN/MAX_LENGTH, PIN_MIN/MAX_LENGTH) and zxcvbn; invalid or weak values are rejected (returns "").
  *
- * @param {string} passphrase - Length in [PASSPHRASE_MIN_LENGTH, PASSPHRASE_MAX_LENGTH], zxcvbn score >= 3
- * @param {string} pin - Length in [PIN_MIN_LENGTH, PIN_MAX_LENGTH], zxcvbn score >= 1
- * @param {*} cb a callback function designed to receive the progress updates during the scrypt hashing process.
- * @param {boolean} legacy - when true, uses the legacy behavior (HASH_OPTIONS_LEGACY and the original salt generation using the last 4 characters of passphrase plus the full pin); when false, uses HASH_OPTIONS and a keccak256-based salt derived from ABI-encoding passphrase and pin
- * @returns hash result as string format, or "" if passphrase/pin missing or too weak
+ * @param passphrase - Length in [PASSPHRASE_MIN_LENGTH, PASSPHRASE_MAX_LENGTH], zxcvbn score >= 3
+ * @param pin - Length in [PIN_MIN_LENGTH, PIN_MAX_LENGTH], zxcvbn score >= 1
+ * @param cb - Callback receiving progress updates during the scrypt hashing process
+ * @param legacy - When true, uses HASH_OPTIONS_LEGACY and the original salt (last 4 characters of passphrase plus full pin). When false, uses HASH_OPTIONS and a keccak256-based salt from ABI-encoding the domain separator, passphrase, and pin
+ * @returns Hash as hex string, or "" if passphrase/pin missing or too weak
  */
 export async function generateHash(
-  passphrase,
-  pin,
-  cb = () => {},
+  passphrase: string,
+  pin: string,
+  cb: ScryptProgressCallback = () => {},
   legacy = false,
-) {
+): Promise<string> {
   if (!passphrase || !pin) {
     return "";
   }
@@ -77,7 +79,7 @@ export async function generateHash(
   }
 
   const passwordBuffer = Buffer.from(passphrase);
-  let saltBuffer;
+  let saltBuffer: Buffer;
 
   if (legacy) {
     const legacySalt = `${passphrase.slice(-4)}${pin}`;
@@ -107,31 +109,31 @@ export async function generateHash(
 }
 
 /**
- * This function derives the EVM private key from a result of the scrypt hash.
- * @param {*} hash scrypt hash result
- * @returns private key as string format
+ * Derives the EVM private key from a scrypt hash result.
+ * @param hash - Scrypt hash result (hex string)
+ * @returns Private key as hex string
  */
-export function getEvmPrivateKey(hash) {
+export function getEvmPrivateKey(hash: string): string {
   return ethers.keccak256(abi.encode(["string"], [hash]));
 }
 
 /**
- * This function returns the EVM wallet address from a result of the scrypt hash.
- * @param {*} hash scrypt hash result
- * @returns address as string format
+ * Returns the EVM wallet address derived from a scrypt hash result.
+ * @param hash - Scrypt hash result
+ * @returns EVM address (checksummed)
  */
-export function getEvmWalletAddress(hash) {
+export function getEvmWalletAddress(hash: string): string {
   const privateKey = getEvmPrivateKey(hash);
   const wallet = new ethers.Wallet(privateKey);
   return wallet.address;
 }
 
 /**
- * This function returns the TRON wallet address from a result of the scrypt hash.
- * @param {*} hash scrypt hash result
- * @returns address as string format
+ * Returns the TRON wallet address derived from a scrypt hash result.
+ * @param hash - Scrypt hash result
+ * @returns TRON base58 address, or false if TronWeb rejects the derived key
  */
-export function getTronWalletAddress(hash) {
+export function getTronWalletAddress(hash: string): string | false {
   const privateKey = getEvmPrivateKey(hash);
   return TronWeb.address.fromPrivateKey(privateKey.slice(2));
 }

@@ -113,7 +113,7 @@ describe("generateHash (default)", () => {
     assert.notStrictEqual(
       hash1,
       hash2,
-      "hashes must differ even when naive concatenation matches"
+      "hashes must differ even when naive concatenation matches",
     );
   });
 });
@@ -145,7 +145,7 @@ describe("getTronWalletAddress (default)", () => {
 describe("generateToken", () => {
   test("should return null if passphrase, pin or network is invalid", () => {
     assert.strictEqual(generateToken("", "123345", "ethereum"), null);
-    assert.strictEqual(generateToken("", "123345"), null);
+    assert.strictEqual(generateToken("", "123345", ""), null);
     assert.strictEqual(generateToken("passphrase", "", "ethereum"), null);
     assert.strictEqual(generateToken("passphrase", "123456", ""), null);
     assert.strictEqual(generateToken("passphrase", "123456", "invalid"), null);
@@ -180,7 +180,7 @@ describe("generateToken", () => {
     for (const passphrase of weakPassphrases) {
       assert.strictEqual(
         generateToken(passphrase, DEMO_PIN, DEMO_NETWORK),
-        null
+        null,
       );
     }
   });
@@ -196,26 +196,27 @@ describe("generateToken", () => {
     for (const pin of weakPins) {
       assert.strictEqual(
         generateToken(DEMO_PASSPHRASE, pin, DEMO_NETWORK),
-        null
+        null,
       );
     }
   });
 
   test("should return valid token with padding (legacy=false)", () => {
     const token = generateToken(DEMO_PASSPHRASE, DEMO_PIN, DEMO_NETWORK, false);
-    assert.ok(token !== null);
+    if (token === null) assert.fail("expected token");
     assert.ok(token.length >= 6 + 6, "token has 6-char prefix and suffix padding");
   });
 
   test("should return valid token with padding (legacy=true)", () => {
     const token = generateToken(DEMO_PASSPHRASE, DEMO_PIN, DEMO_NETWORK, true);
-    assert.ok(token !== null);
+    if (token === null) assert.fail("expected token");
     assert.ok(token.length >= 6 + 6, "token has 6-char prefix and suffix padding");
   });
 
   test("should return different token for same inputs when legacy true vs false", () => {
     const tokenLegacy = generateToken(DEMO_PASSPHRASE, DEMO_PIN, DEMO_NETWORK, true);
     const tokenAbi = generateToken(DEMO_PASSPHRASE, DEMO_PIN, DEMO_NETWORK, false);
+    if (tokenLegacy === null || tokenAbi === null) assert.fail("expected tokens");
     const payloadLegacy = tokenLegacy.slice(6, tokenLegacy.length - 6);
     const payloadAbi = tokenAbi.slice(6, tokenAbi.length - 6);
     assert.notStrictEqual(payloadLegacy, payloadAbi, "payloads must differ (legacy vs ABI encoding)");
@@ -230,20 +231,19 @@ describe("generateToken", () => {
     assert.strictEqual(
       passphrase1 + pin1 + network,
       passphrase2 + pin2 + network,
-      "same naive concatenation"
+      "same naive concatenation",
     );
 
     const token1 = generateToken(passphrase1, pin1, network, false);
     const token2 = generateToken(passphrase2, pin2, network, false);
 
-    assert.ok(token1 !== null);
-    assert.ok(token2 !== null);
+    if (token1 === null || token2 === null) assert.fail("expected tokens");
     const payload1 = token1.slice(6, token1.length - 6);
     const payload2 = token2.slice(6, token2.length - 6);
     assert.notStrictEqual(
       payload1,
       payload2,
-      "payloads must differ even when naive concatenation matches"
+      "payloads must differ even when naive concatenation matches",
     );
   });
 
@@ -261,7 +261,7 @@ describe("generateToken", () => {
     for (const network of networks) {
       assert.notStrictEqual(
         generateToken(DEMO_PASSPHRASE, DEMO_PIN, network, false),
-        null
+        null,
       );
     }
   });
@@ -280,7 +280,7 @@ describe("generateToken", () => {
     for (const network of networks) {
       assert.notStrictEqual(
         generateToken(DEMO_PASSPHRASE, DEMO_PIN, network, true),
-        null
+        null,
       );
     }
   });
@@ -289,13 +289,15 @@ describe("generateToken", () => {
     const delimiter = String.fromCharCode(2);
     const trickyPassphrase = `Demo${delimiter}Account5&`;
     const token = generateToken(trickyPassphrase, DEMO_PIN, DEMO_NETWORK, false);
-    assert.ok(token !== null);
+    if (token === null) assert.fail("expected token");
+    assert.ok(token.length > 0);
   });
 });
 
 describe("parseToken", () => {
   test("should return [passphrase, pin, network, legacy] for token generated with legacy=false", () => {
     const token = generateToken(DEMO_PASSPHRASE, DEMO_PIN, DEMO_NETWORK, false);
+    if (token === null) assert.fail("expected token");
     const [passphrase, pin, network, legacy] = parseToken(token);
     assert.strictEqual(passphrase, DEMO_PASSPHRASE);
     assert.strictEqual(pin, DEMO_PIN);
@@ -305,6 +307,7 @@ describe("parseToken", () => {
 
   test("should return [passphrase, pin, network, legacy] for token generated with legacy=true", () => {
     const token = generateToken(DEMO_PASSPHRASE, DEMO_PIN, DEMO_NETWORK, true);
+    if (token === null) assert.fail("expected token");
     const [passphrase, pin, network, legacy] = parseToken(token);
     assert.strictEqual(passphrase, DEMO_PASSPHRASE);
     assert.strictEqual(pin, DEMO_PIN);
@@ -336,7 +339,7 @@ describe("parseToken", () => {
     assert.deepStrictEqual(
       parseToken(spaceToken),
       parseToken(plusToken),
-      "space should be treated as '+'"
+      "space should be treated as '+'",
     );
 
     const plusToken2 =
@@ -346,7 +349,7 @@ describe("parseToken", () => {
     assert.deepStrictEqual(
       parseToken(dashToken2),
       parseToken(plusToken2),
-      "'-' should be treated as '+' in payload normalization"
+      "'-' should be treated as '+' in payload normalization",
     );
   });
 
@@ -358,7 +361,7 @@ describe("parseToken", () => {
     assert.deepStrictEqual(
       parseToken(tokenWithoutPadding),
       parseToken(tokenWithPadding),
-      "missing '=' padding should be recovered"
+      "missing '=' padding should be recovered",
     );
   });
 });
@@ -369,6 +372,7 @@ describe("generateToken and parseToken", () => {
     const testPin = "909011";
     const testNetwork = "polygon";
     const token = generateToken(testPassphrase, testPin, testNetwork, false);
+    if (token === null) assert.fail("expected token");
 
     const [passphrase, pin, network] = parseToken(token);
     assert.strictEqual(passphrase, testPassphrase);
@@ -382,6 +386,7 @@ describe("generateToken and parseToken", () => {
     const testPin = "909011";
     const testNetwork = "polygon";
     const token = generateToken(testPassphrase, testPin, testNetwork, false);
+    if (token === null) assert.fail("expected token");
 
     const [passphrase, pin, network, legacy] = parseToken(token);
     assert.strictEqual(passphrase, testPassphrase);
@@ -395,6 +400,7 @@ describe("generateToken and parseToken", () => {
     const testPin = "909011";
     const testNetwork = "polygon";
     const token = generateToken(testPassphrase, testPin, testNetwork, true);
+    if (token === null) assert.fail("expected token");
 
     const [passphrase, pin, network] = parseToken(token);
     assert.strictEqual(passphrase, testPassphrase);
@@ -408,8 +414,9 @@ describe("generateToken and parseToken", () => {
     const testPin = "909011";
     const testNetwork = "polygon";
     const token = generateToken(testPassphrase, testPin, testNetwork, true);
+    if (token === null) assert.fail("expected token");
 
-    const [passphrase, pin, network, legacy] = parseToken(token);
+    const [passphrase, , , legacy] = parseToken(token);
     assert.notStrictEqual(
       passphrase,
       testPassphrase,
@@ -425,6 +432,7 @@ describe("generateToken and parseToken", () => {
       const testPassphrase = randomPassphrase();
       const testPin = randomPIN();
       const token = generateToken(testPassphrase, testPin, testNetwork, false);
+      if (token === null) assert.fail(`expected token at case ${i}`);
 
       const [passphrase, pin, network, legacy] = parseToken(token);
       assert.strictEqual(

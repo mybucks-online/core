@@ -2,10 +2,25 @@
   "name": "@mybucks.online/core",
   "version": "2.2.4",
   "description": "Core library for Mybucks.online — a seedless wallet and gifting wallet: disposable gift wallets, fund and share via secure 1-click URL. Browser-only (no servers, database, or install). Cryptography and wallet primitives for airdrops, giveaways, campaigns, and instant onboarding.",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "type": "module",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
-    "test": "node test/index.test.js && node test/legacy.test.js && node test/random.test.js"
+    "clean": "rm -rf dist",
+    "build": "tsc -p tsconfig.json",
+    "test": "npm run build && tsx --test test/index.test.ts test/legacy.test.ts test/random.test.ts"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
   },
   "repository": {
     "type": "git",
@@ -62,5 +77,11 @@
     "scrypt-js": "^3.0.1",
     "tronweb": "^6.2.2",
     "zxcvbn": "^4.4.2"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.0",
+    "@types/zxcvbn": "^4.4.5",
+    "tsx": "^4.19.4",
+    "typescript": "^5.9.3"
   }
 }
