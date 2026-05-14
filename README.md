@@ -1,6 +1,6 @@
 # @mybucks.online/core
 
-This is a core part of [mybucks.online](https://mybucks.online) crypto wallet, involving hash and private key generation, generate and parse transfer-link token.
+This is a core part of [mybucks.online](https://mybucks.online) crypto wallet, involving hash and private key generation, generate and parse gifting-link token.
 
 ## mybucks.online
 
@@ -69,7 +69,7 @@ const address2 = getTronWalletAddress(hash);
 console.log("TRON Address: ", address2);
 ```
 
-### 3. Generate and parse (transfer-link's)token
+### 3. Generate and parse gifting-link token
 ```javascript
 import { generateToken } from "@mybucks.online/core";
 const token = generateToken(passphrase, pin, network);
@@ -111,7 +111,7 @@ To make the wallet more secure and resilient against attacks, and to meet standa
 - The default now derives the salt from the **full passphrase and pin** via a structured encoding and adds a **domain separator** so hashes are bound to this KDF and not reusable in other protocols or versions.
 
 **Token generation (default)**  
-- Legacy encoded the transfer-link token by **concatenating** passphrase, pin and network with a delimiter, which is ambiguous for some inputs.  
+- Legacy encoded the gifting-link token by **concatenating** passphrase, pin and network with a delimiter, which is ambiguous for some inputs.  
 - The default uses a **compact length-prefixed** payload (version byte + lengths + UTF-8 bytes) so there is no concatenation ambiguity and the URL fragment stays short.  
 - `parseToken` accepts both legacy and default token formats automatically and returns `{ passphrase, pin, network, legacy }`, where `legacy` is `true` if the token was in legacy format.
 

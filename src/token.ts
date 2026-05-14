@@ -24,7 +24,6 @@ const NETWORKS = [
   "tron",
 ] as const;
 
-export type SupportedNetwork = (typeof NETWORKS)[number];
 export type ParsedToken = {
   passphrase: string;
   pin: string;
@@ -33,8 +32,8 @@ export type ParsedToken = {
 };
 
 /**
- * Generates a transfer-link token by encoding passphrase, pin and network, with random padding.
- * The transfer-link lets users send full ownership of a wallet account (e.g. gifting or airdrops).
+ * Generates a gifting-link token by encoding passphrase, pin and network, with random padding.
+ * The gifting-link lets users send full ownership of a wallet account (e.g. gifting or airdrops).
  * Passphrase and PIN are validated by length (see PASSPHRASE_MIN/MAX_LENGTH, PIN_MIN/MAX_LENGTH) and zxcvbn; invalid or weak values return null.
  * When legacy is false, payload is compact length-prefixed (version 0x02) to avoid concatenation ambiguity and keep the URL fragment short; when true, uses LEGACY_URL_DELIMITER concatenation.
  *
@@ -111,7 +110,7 @@ export function generateToken(
 }
 
 /**
- * Parses a transfer-link token produced by {@link generateToken}.
+ * Parses a gifting-link token produced by {@link generateToken}.
  * Tokens whose payload starts with 0x02 are decoded as compact length-prefixed; otherwise payload is treated as legacy (UTF-8 + LEGACY_URL_DELIMITER).
  *
  * @param token - Token string returned by generateToken()
