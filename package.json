@@ -83,5 +83,8 @@
     "@types/zxcvbn": "^4.4.5",
     "tsx": "^4.19.4",
     "typescript": "^5.9.3"
+  },
+  "overrides": {
+    "axios": "1.15.2"
   }
 }
