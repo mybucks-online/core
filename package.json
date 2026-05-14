@@ -75,7 +75,7 @@
     "ethers": "^6.13.5",
     "nanoid": "^5.0.9",
     "scrypt-js": "^3.0.1",
-    "tronweb": "^6.2.2",
+    "tronweb": "^6.3.0",
     "zxcvbn": "^4.4.2"
   },
   "devDependencies": {
