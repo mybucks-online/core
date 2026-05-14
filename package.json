@@ -1,6 +1,6 @@
 {
   "name": "@mybucks.online/core",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "Core library for Mybucks.online — a seedless wallet and gifting wallet: disposable gift wallets, fund and share via secure 1-click URL. Browser-only (no servers, database, or install). Cryptography and wallet primitives for airdrops, giveaways, campaigns, and instant onboarding.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -83,5 +83,8 @@
     "@types/zxcvbn": "^4.4.5",
     "tsx": "^4.19.4",
     "typescript": "^5.9.3"
+  },
+  "overrides": {
+    "axios": "1.15.2"
   }
 }
