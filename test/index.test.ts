@@ -295,20 +295,20 @@ describe("generateToken", () => {
 });
 
 describe("parseToken", () => {
-  test("should return [passphrase, pin, network, legacy] for token generated with legacy=false", () => {
+  test("should return { passphrase, pin, network, legacy } for token generated with legacy=false", () => {
     const token = generateToken(DEMO_PASSPHRASE, DEMO_PIN, DEMO_NETWORK, false);
     if (token === null) assert.fail("expected token");
-    const [passphrase, pin, network, legacy] = parseToken(token);
+    const { passphrase, pin, network, legacy } = parseToken(token);
     assert.strictEqual(passphrase, DEMO_PASSPHRASE);
     assert.strictEqual(pin, DEMO_PIN);
     assert.strictEqual(network, DEMO_NETWORK);
     assert.strictEqual(legacy, false);
   });
 
-  test("should return [passphrase, pin, network, legacy] for token generated with legacy=true", () => {
+  test("should return { passphrase, pin, network, legacy } for token generated with legacy=true", () => {
     const token = generateToken(DEMO_PASSPHRASE, DEMO_PIN, DEMO_NETWORK, true);
     if (token === null) assert.fail("expected token");
-    const [passphrase, pin, network, legacy] = parseToken(token);
+    const { passphrase, pin, network, legacy } = parseToken(token);
     assert.strictEqual(passphrase, DEMO_PASSPHRASE);
     assert.strictEqual(pin, DEMO_PIN);
     assert.strictEqual(network, DEMO_NETWORK);
@@ -316,7 +316,7 @@ describe("parseToken", () => {
   });
 
   test("should parse DEMO_LEGACY_TOKEN and return DEMO_PASSPHRASE, DEMO_PIN, DEMO_NETWORK and legacy=true", () => {
-    const [passphrase, pin, network, legacy] = parseToken(DEMO_LEGACY_TOKEN);
+    const { passphrase, pin, network, legacy } = parseToken(DEMO_LEGACY_TOKEN);
     assert.strictEqual(passphrase, DEMO_PASSPHRASE);
     assert.strictEqual(pin, DEMO_PIN);
     assert.strictEqual(network, DEMO_NETWORK);
@@ -324,7 +324,7 @@ describe("parseToken", () => {
   });
 
   test("should parse DEMO_DEFAULT_TOKEN and return DEMO_PASSPHRASE, DEMO_PIN, DEMO_NETWORK and legacy=false", () => {
-    const [passphrase, pin, network, legacy] = parseToken(DEMO_DEFAULT_TOKEN);
+    const { passphrase, pin, network, legacy } = parseToken(DEMO_DEFAULT_TOKEN);
     assert.strictEqual(passphrase, DEMO_PASSPHRASE);
     assert.strictEqual(pin, DEMO_PIN);
     assert.strictEqual(network, DEMO_NETWORK);
@@ -374,7 +374,7 @@ describe("generateToken and parseToken", () => {
     const token = generateToken(testPassphrase, testPin, testNetwork, false);
     if (token === null) assert.fail("expected token");
 
-    const [passphrase, pin, network] = parseToken(token);
+    const { passphrase, pin, network } = parseToken(token);
     assert.strictEqual(passphrase, testPassphrase);
     assert.strictEqual(pin, testPin);
     assert.strictEqual(network, testNetwork);
@@ -388,7 +388,7 @@ describe("generateToken and parseToken", () => {
     const token = generateToken(testPassphrase, testPin, testNetwork, false);
     if (token === null) assert.fail("expected token");
 
-    const [passphrase, pin, network, legacy] = parseToken(token);
+    const { passphrase, pin, network, legacy } = parseToken(token);
     assert.strictEqual(passphrase, testPassphrase);
     assert.strictEqual(pin, testPin);
     assert.strictEqual(network, testNetwork);
@@ -402,7 +402,7 @@ describe("generateToken and parseToken", () => {
     const token = generateToken(testPassphrase, testPin, testNetwork, true);
     if (token === null) assert.fail("expected token");
 
-    const [passphrase, pin, network] = parseToken(token);
+    const { passphrase, pin, network } = parseToken(token);
     assert.strictEqual(passphrase, testPassphrase);
     assert.strictEqual(pin, testPin);
     assert.strictEqual(network, testNetwork);
@@ -416,7 +416,7 @@ describe("generateToken and parseToken", () => {
     const token = generateToken(testPassphrase, testPin, testNetwork, true);
     if (token === null) assert.fail("expected token");
 
-    const [passphrase, , , legacy] = parseToken(token);
+    const { passphrase, legacy } = parseToken(token);
     assert.notStrictEqual(
       passphrase,
       testPassphrase,
@@ -434,7 +434,7 @@ describe("generateToken and parseToken", () => {
       const token = generateToken(testPassphrase, testPin, testNetwork, false);
       if (token === null) assert.fail(`expected token at case ${i}`);
 
-      const [passphrase, pin, network, legacy] = parseToken(token);
+      const { passphrase, pin, network, legacy } = parseToken(token);
       assert.strictEqual(
         passphrase,
         testPassphrase,

@@ -11,6 +11,6 @@ export {
   getTronWalletAddress,
 } from "./src/credentials.js";
 
-export { generateToken, parseToken } from "./src/token.js";
+export { generateToken, parseToken, type ParsedToken } from "./src/token.js";
 
 export { randomPassphrase, randomPIN } from "./src/random.js";

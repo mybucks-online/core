@@ -25,12 +25,12 @@ const NETWORKS = [
 ] as const;
 
 export type SupportedNetwork = (typeof NETWORKS)[number];
-export type ParsedToken = [
-  passphrase: string,
-  pin: string,
-  network: string,
-  legacy: boolean,
-];
+export type ParsedToken = {
+  passphrase: string;
+  pin: string;
+  network: string;
+  legacy: boolean;
+};
 
 /**
  * Generates a transfer-link token by encoding passphrase, pin and network, with random padding.
@@ -115,7 +115,7 @@ export function generateToken(
  * Tokens whose payload starts with 0x02 are decoded as compact length-prefixed; otherwise payload is treated as legacy (UTF-8 + LEGACY_URL_DELIMITER).
  *
  * @param token - Token string returned by generateToken()
- * @returns [passphrase, pin, network, legacy] — legacy is true if token used legacy format, false if compact-encoded
+ * @returns `{ passphrase, pin, network, legacy }` — legacy is true if token used legacy format, false if compact-encoded
  */
 export function parseToken(token: string): ParsedToken {
   const payload = token.slice(6, token.length - 6);
@@ -139,10 +139,15 @@ export function parseToken(token: string): ParsedToken {
     i += lenI;
     const lenN = decoded[i++] as number;
     const network = decoded.subarray(i, i + lenN).toString("utf-8");
-    return [passphrase, pin, network, false];
+    return { passphrase, pin, network, legacy: false };
   }
 
   const str = decoded.toString("utf-8");
   const [passphrase, pin, network] = str.split(LEGACY_URL_DELIMITER);
-  return [passphrase ?? "", pin ?? "", network ?? "", true];
+  return {
+    passphrase: passphrase ?? "",
+    pin: pin ?? "",
+    network: network ?? "",
+    legacy: true,
+  };
 }
