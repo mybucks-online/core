@@ -21,6 +21,7 @@ const NETWORKS = [
   "bsc",
   "avalanche",
   "base",
+  "monad",
   "tron",
 ] as const;
 
@@ -39,7 +40,7 @@ export type ParsedToken = {
  *
  * @param passphrase - Length in [PASSPHRASE_MIN_LENGTH, PASSPHRASE_MAX_LENGTH], zxcvbn score >= 3
  * @param pin - Length in [PIN_MIN_LENGTH, PIN_MAX_LENGTH], zxcvbn score >= 1
- * @param network - ethereum | polygon | arbitrum | optimism | bsc | avalanche | base | tron
+ * @param network - ethereum | polygon | arbitrum | optimism | bsc | avalanche | base | monad | tron
  * @param legacy - When true, LEGACY_URL_DELIMITER concatenation; when false, compact length-prefixed encoding
  * @returns Token string suitable to append to `https://app.mybucks.online#wallet=`, or null if invalid/weak
  */
