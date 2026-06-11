@@ -256,6 +256,7 @@ describe("generateToken", () => {
       "bsc",
       "avalanche",
       "base",
+      "monad",
       "tron",
     ];
     for (const network of networks) {
@@ -275,6 +276,7 @@ describe("generateToken", () => {
       "bsc",
       "avalanche",
       "base",
+      "monad",
       "tron",
     ];
     for (const network of networks) {
