@@ -1,7 +1,7 @@
 {
   "name": "@mybucks.online/core",
-  "version": "3.0.4",
-  "description": "Core library for Mybucks.online — a seedless wallet and gifting wallet: disposable gift wallets, fund and share via secure 1-click URL. Browser-only (no servers, database, or install). Cryptography and wallet primitives for airdrops, giveaways, campaigns, and instant onboarding.",
+  "version": "3.0.5",
+  "description": "Core library for Mybucks.online — a digital cash envelope for the internet. Seedless, disposable wallet primitives: derive keys, generate addresses, and encode/decode gifting-link tokens. Browser-only (no servers, database, or install). Cryptography for micro-gifting, airdrops, campaigns, and instant onboarding.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "type": "module",
@@ -29,7 +29,10 @@
   "keywords": [
     "mybucks",
     "mybucks.online",
+    "digital-cash-envelope",
+    "crypto-gifting",
     "seedless-wallet",
+    "disposable-wallet",
     "gifting-wallet",
     "gift-wallet",
     "burner-wallet",

@@ -34,7 +34,7 @@ export type ParsedToken = {
 
 /**
  * Generates a gifting-link token by encoding passphrase, pin and network, with random padding.
- * The gifting-link lets users send full ownership of a wallet account (e.g. gifting or airdrops).
+ * The gifting-link lets recipients claim full ownership of a one-time digital cash envelope (e.g. gifting or airdrops).
  * Passphrase and PIN are validated by length (see PASSPHRASE_MIN/MAX_LENGTH, PIN_MIN/MAX_LENGTH) and zxcvbn; invalid or weak values return null.
  * When legacy is false, payload is compact length-prefixed (version 0x02) to avoid concatenation ambiguity and keep the URL fragment short; when true, uses LEGACY_URL_DELIMITER concatenation.
  *
