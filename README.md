@@ -1,6 +1,6 @@
 # @mybucks.online/core
 
-This is a core part of [mybucks.online](https://mybucks.online) crypto wallet, involving hash and private key generation, generate and parse gifting-link token.
+Core library for [mybucks.online](https://mybucks.online)—a **digital cash envelope** for the internet. It provides hash and key derivation, address generation, and gifting-link token encode/decode for the seedless, disposable wallet framework.
 
 ## Quick start
 
@@ -115,9 +115,9 @@ Important:
 
 ## mybucks.online
 
-[Mybucks.online](https://mybucks.online) is a **seedless, disposable crypto wallet** built for fast, browser-only usage. It derives wallet keys from **passphrase + PIN** using **Scrypt**, with no server-side key storage.
+[Mybucks.online](https://mybucks.online) is a **digital cash envelope** for the internet—a Web3 utility for one-time use, gifting, and easy onboarding. Technically, it implements a **seedless, disposable wallet** framework. Keys are derived from **passphrase + PIN** using **Scrypt**, with no server-side key storage.
 
-You can also transfer a wallet via URL: create a one-time wallet, fund it, and share full ownership through a link. This makes gifting, reward distribution, and lightweight airdrops much simpler.
+You can send cryptocurrency—and even **the envelope itself—via a URL**. Create a one-time account, fund it, and share full ownership through a link. Perfect for micro-gifting, airdrops, creator tipping, and bulk distribution.
 
 ### Zero Footprint
 - No servers, no databases, no storage and no tracking.
@@ -127,7 +127,7 @@ You can also transfer a wallet via URL: create a one-time wallet, fund it, and s
 
 ### Fast and Easy
 - No app installs, no browser extensions, no registration and no KYC.
-- Create or open a wallet in seconds with only your browser.
+- Create or open an envelope in seconds with only your browser.
 
 ### 1-Click Gifting
 - Send a wallet as a URL, not just coins.
