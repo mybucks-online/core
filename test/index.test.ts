@@ -256,6 +256,7 @@ describe("generateToken", () => {
       "bsc",
       "avalanche",
       "base",
+      "mantle",
       "monad",
       "tron",
     ];
@@ -276,6 +277,7 @@ describe("generateToken", () => {
       "bsc",
       "avalanche",
       "base",
+      "mantle",
       "monad",
       "tron",
     ];
