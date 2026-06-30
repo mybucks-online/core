@@ -106,6 +106,13 @@ If the agent is compromised:
 5. **Use `legacy: false`** (default) for new envelopes. Use `legacy: true` only when matching pre–March 2026 wallets/tokens.
 6. **Micro-gifts only** — not for high-value or long-term storage. No recovery if credentials are lost.
 7. **One envelope per gift** — isolate blast radius; do not reuse credentials across recipients.
+8. **Do not publish passphrase or PIN** — treat them like private keys. Prefer delivering only the **gifting link** (`giftUrl`); anyone with the link can claim the envelope. Show raw passphrase/PIN only when the recipient truly needs them, in a **private** channel to that person, and never in git, tickets, logs, or public posts.
+
+When you must show credentials privately (e.g. one-time handoff), `randomPassphrase()` may include symbols that break Markdown—especially backtick (`` ` ``). Do not use inline code fences; use a fenced code block or plain text so the value is not corrupted on copy-paste:
+
+```
+eDy9-1-`Q-X4TP-65XS
+```
 
 ## Validation thresholds
 
