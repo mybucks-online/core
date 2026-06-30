@@ -1,6 +1,6 @@
 {
   "name": "@mybucks.online/core",
-  "version": "3.0.5",
+  "version": "3.0.6",
   "description": "Core library for Mybucks.online — a digital cash envelope for the internet. Seedless, disposable wallet primitives: derive keys, generate addresses, and encode/decode gifting-link tokens. Browser-only (no servers, database, or install). Cryptography for micro-gifting, airdrops, campaigns, and instant onboarding.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
