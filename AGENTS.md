@@ -127,8 +127,16 @@ Weak inputs: `generateHash` returns `""`; `generateToken` returns `null`.
 
 ## Legacy compatibility
 
+Token formats (`parseToken` returns `version: 1 | 2 | 3` and `legacy` for backward compat):
+
+| Version | Encoding | Padding | When |
+|---------|----------|---------|------|
+| **v3** | compact `0x03` | none | `generateToken(..., legacy: false)` (current default) |
+| **v2** | compact `0x02` | 6+6 nanoid | older default links (e.g. pre–v3.1) |
+| **v1** | delimiter `\u0002` | 6+6 nanoid | `generateToken(..., legacy: true)` |
+
 - `generateHash(..., legacy: true)` and `generateToken(..., legacy: true)` match older KDF/token formats.
-- `parseToken` auto-detects legacy vs default tokens and returns `{ passphrase, pin, network, legacy }`.
+- `parseToken` auto-detects v1/v2/v3 and returns `{ passphrase, pin, network, legacy, version }`.
 
 ## Related projects
 

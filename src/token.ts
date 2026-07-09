@@ -9,9 +9,12 @@ import {
 } from "./credentials.js";
 
 const LEGACY_URL_DELIMITER = "\u0002";
-// Version byte for the default (non-legacy) token format.
-// Uses a compact length-prefixed encoding for passphrase, pin and network.
-const TOKEN_VERSION_COMPACT = 0x02;
+const TOKEN_PADDING_LENGTH = 6;
+
+/** v2: compact length-prefixed payload wrapped in 6+6 random padding (deprecated for new links). */
+const TOKEN_VERSION_COMPACT_PADDED = 0x02;
+/** v3: compact length-prefixed payload without outer padding (current default). */
+const TOKEN_VERSION_COMPACT = 0x03;
 
 const NETWORKS = [
   "ethereum",
@@ -26,23 +29,104 @@ const NETWORKS = [
   "tron",
 ] as const;
 
+export type TokenFormatVersion = 1 | 2 | 3;
+
 export type ParsedToken = {
   passphrase: string;
   pin: string;
   network: string;
+  /** @deprecated Use `version === 1` instead. */
   legacy: boolean;
+  version: TokenFormatVersion;
 };
 
+function encodePayloadBase64Url(payloadBuffer: Buffer): string {
+  return payloadBuffer
+    .toString("base64")
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/g, "");
+}
+
+function decodePayloadBase64Url(payload: string): Buffer {
+  const normalized = payload
+    .replace(/ /g, "+")
+    .replace(/-/g, "+")
+    .replace(/_/g, "/");
+  const padded = normalized + "=".repeat((4 - (normalized.length % 4)) % 4);
+  return Buffer.from(padded, "base64");
+}
+
+function buildCompactPayload(
+  versionByte: number,
+  passphrase: string,
+  pin: string,
+  network: string,
+): Buffer {
+  const passphraseBytes = Buffer.from(passphrase, "utf-8");
+  const pinBytes = Buffer.from(pin, "utf-8");
+  const networkBytes = Buffer.from(network, "utf-8");
+
+  return Buffer.concat([
+    Buffer.from([versionByte]),
+    Buffer.from([passphraseBytes.length]),
+    passphraseBytes,
+    Buffer.from([pinBytes.length]),
+    pinBytes,
+    Buffer.from([networkBytes.length]),
+    networkBytes,
+  ]);
+}
+
+function parseCompactPayload(decoded: Buffer): {
+  passphrase: string;
+  pin: string;
+  network: string;
+} {
+  let i = 1;
+  const lenP = decoded[i++] as number;
+  const passphrase = decoded.subarray(i, i + lenP).toString("utf-8");
+  i += lenP;
+  const lenI = decoded[i++] as number;
+  const pin = decoded.subarray(i, i + lenI).toString("utf-8");
+  i += lenI;
+  const lenN = decoded[i++] as number;
+  const network = decoded.subarray(i, i + lenN).toString("utf-8");
+  return { passphrase, pin, network };
+}
+
+function parseLegacyDelimiterPayload(decoded: Buffer): {
+  passphrase: string;
+  pin: string;
+  network: string;
+} {
+  const str = decoded.toString("utf-8");
+  const [passphrase, pin, network] = str.split(LEGACY_URL_DELIMITER);
+  return {
+    passphrase: passphrase ?? "",
+    pin: pin ?? "",
+    network: network ?? "",
+  };
+}
+
+function wrapWithPadding(base64Encoded: string): string {
+  const padding = nanoid(TOKEN_PADDING_LENGTH * 2);
+  return padding.slice(0, TOKEN_PADDING_LENGTH) + base64Encoded + padding.slice(TOKEN_PADDING_LENGTH);
+}
+
 /**
- * Generates a gifting-link token by encoding passphrase, pin and network, with random padding.
+ * Generates a gifting-link token by encoding passphrase, pin and network.
  * The gifting-link lets recipients claim full ownership of a one-time digital cash envelope (e.g. gifting or airdrops).
  * Passphrase and PIN are validated by length (see PASSPHRASE_MIN/MAX_LENGTH, PIN_MIN/MAX_LENGTH) and zxcvbn; invalid or weak values return null.
- * When legacy is false, payload is compact length-prefixed (version 0x02) to avoid concatenation ambiguity and keep the URL fragment short; when true, uses LEGACY_URL_DELIMITER concatenation.
+ *
+ * Token formats:
+ * - `legacy: false` → **v3** compact encoding (0x03), no outer padding — stable for the same credentials.
+ * - `legacy: true` → **v1** delimiter encoding inside 6+6 padding (legacy KDF compatibility).
  *
  * @param passphrase - Length in [PASSPHRASE_MIN_LENGTH, PASSPHRASE_MAX_LENGTH], zxcvbn score >= 3
  * @param pin - Length in [PIN_MIN_LENGTH, PIN_MAX_LENGTH], zxcvbn score >= 1
  * @param network - ethereum | polygon | arbitrum | optimism | bsc | avalanche | base | mantle | monad | tron
- * @param legacy - When true, LEGACY_URL_DELIMITER concatenation; when false, compact length-prefixed encoding
+ * @param legacy - When true, v1 delimiter format; when false, v3 compact format
  * @returns Token string suitable to append to `https://app.mybucks.online#wallet=`, or null if invalid/weak
  */
 export function generateToken(
@@ -85,70 +169,82 @@ export function generateToken(
       "utf-8",
     );
   } else {
-    // Default format: compact length-prefixed encoding.
-    const passphraseBytes = Buffer.from(passphrase, "utf-8");
-    const pinBytes = Buffer.from(pin, "utf-8");
-    const networkBytes = Buffer.from(network, "utf-8");
-
-    payloadBuffer = Buffer.concat([
-      Buffer.from([TOKEN_VERSION_COMPACT]),
-      Buffer.from([passphraseBytes.length]),
-      passphraseBytes,
-      Buffer.from([pinBytes.length]),
-      pinBytes,
-      Buffer.from([networkBytes.length]),
-      networkBytes,
-    ]);
+    payloadBuffer = buildCompactPayload(
+      TOKEN_VERSION_COMPACT,
+      passphrase,
+      pin,
+      network,
+    );
   }
 
-  // Convert Base64 to Base64URL so token remains safe in URL hash/query contexts.
-  const base64Encoded = payloadBuffer
-    .toString("base64")
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_")
-    .replace(/=+$/g, "");
-  const padding = nanoid(12);
-  return padding.slice(0, 6) + base64Encoded + padding.slice(6);
+  const base64Encoded = encodePayloadBase64Url(payloadBuffer);
+  if (legacy) {
+    return wrapWithPadding(base64Encoded);
+  }
+  return base64Encoded;
 }
 
 /**
- * Parses a gifting-link token produced by {@link generateToken}.
- * Tokens whose payload starts with 0x02 are decoded as compact length-prefixed; otherwise payload is treated as legacy (UTF-8 + LEGACY_URL_DELIMITER).
+ * Parses a gifting-link token produced by {@link generateToken} or older formats.
  *
- * @param token - Token string returned by generateToken()
- * @returns `{ passphrase, pin, network, legacy }` — legacy is true if token used legacy format, false if compact-encoded
+ * Format detection:
+ * - **v3** — compact (0x03), no outer padding (current default)
+ * - **v2** — compact (0x02) with 6+6 outer padding (older default links)
+ * - **v1** — delimiter payload with 6+6 outer padding (`legacy: true` generation)
+ *
+ * @param token - Token string from the `#wallet=` URL fragment
  */
 export function parseToken(token: string): ParsedToken {
-  const payload = token.slice(6, token.length - 6);
-  // Normalize payload for robust URL transport:
-  // - URLSearchParams converts "+" to " "
-  // - base64url may use "-" and "_" and omit padding
-  const normalized = payload
-    .replace(/ /g, "+")
-    .replace(/-/g, "+")
-    .replace(/_/g, "/");
-  const padded = normalized + "=".repeat((4 - (normalized.length % 4)) % 4);
-  const decoded = Buffer.from(padded, "base64");
+  const tryDecode = (payload: string): Buffer | null => {
+    try {
+      return decodePayloadBase64Url(payload);
+    } catch {
+      return null;
+    }
+  };
 
-  if (decoded[0] === TOKEN_VERSION_COMPACT) {
-    let i = 1;
-    const lenP = decoded[i++] as number;
-    const passphrase = decoded.subarray(i, i + lenP).toString("utf-8");
-    i += lenP;
-    const lenI = decoded[i++] as number;
-    const pin = decoded.subarray(i, i + lenI).toString("utf-8");
-    i += lenI;
-    const lenN = decoded[i++] as number;
-    const network = decoded.subarray(i, i + lenN).toString("utf-8");
-    return { passphrase, pin, network, legacy: false };
+  const decodedFull = tryDecode(token);
+  if (decodedFull && decodedFull[0] === TOKEN_VERSION_COMPACT) {
+    return {
+      ...parseCompactPayload(decodedFull),
+      legacy: false,
+      version: 3,
+    };
   }
 
-  const str = decoded.toString("utf-8");
-  const [passphrase, pin, network] = str.split(LEGACY_URL_DELIMITER);
+  if (token.length >= TOKEN_PADDING_LENGTH * 2) {
+    const inner = token.slice(TOKEN_PADDING_LENGTH, token.length - TOKEN_PADDING_LENGTH);
+    const decodedInner = tryDecode(inner);
+    if (decodedInner) {
+      if (decodedInner[0] === TOKEN_VERSION_COMPACT_PADDED) {
+        return {
+          ...parseCompactPayload(decodedInner),
+          legacy: false,
+          version: 2,
+        };
+      }
+
+      return {
+        ...parseLegacyDelimiterPayload(decodedInner),
+        legacy: true,
+        version: 1,
+      };
+    }
+  }
+
+  if (decodedFull) {
+    return {
+      ...parseLegacyDelimiterPayload(decodedFull),
+      legacy: true,
+      version: 1,
+    };
+  }
+
   return {
-    passphrase: passphrase ?? "",
-    pin: pin ?? "",
-    network: network ?? "",
+    passphrase: "",
+    pin: "",
+    network: "",
     legacy: true,
+    version: 1,
   };
 }

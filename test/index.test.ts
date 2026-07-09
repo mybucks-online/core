@@ -201,16 +201,29 @@ describe("generateToken", () => {
     }
   });
 
-  test("should return valid token with padding (legacy=false)", () => {
+  test("should return valid token without outer padding (legacy=false, v3)", () => {
     const token = generateToken(DEMO_PASSPHRASE, DEMO_PIN, DEMO_NETWORK, false);
     if (token === null) assert.fail("expected token");
-    assert.ok(token.length >= 6 + 6, "token has 6-char prefix and suffix padding");
+    assert.ok(
+      token.length < DEMO_DEFAULT_TOKEN.length,
+      "v3 token should be shorter than padded v2 demo token",
+    );
+    const decoded = parseToken(token);
+    assert.strictEqual(decoded.version, 3);
   });
 
-  test("should return valid token with padding (legacy=true)", () => {
+  test("should return valid token with padding (legacy=true, v1)", () => {
     const token = generateToken(DEMO_PASSPHRASE, DEMO_PIN, DEMO_NETWORK, true);
     if (token === null) assert.fail("expected token");
     assert.ok(token.length >= 6 + 6, "token has 6-char prefix and suffix padding");
+    assert.strictEqual(parseToken(token).version, 1);
+  });
+
+  test("should return stable v3 token for same inputs", () => {
+    const token1 = generateToken(DEMO_PASSPHRASE, DEMO_PIN, DEMO_NETWORK, false);
+    const token2 = generateToken(DEMO_PASSPHRASE, DEMO_PIN, DEMO_NETWORK, false);
+    if (token1 === null || token2 === null) assert.fail("expected tokens");
+    assert.strictEqual(token1, token2, "v3 tokens must be deterministic");
   });
 
   test("should return different token for same inputs when legacy true vs false", () => {
@@ -218,8 +231,8 @@ describe("generateToken", () => {
     const tokenAbi = generateToken(DEMO_PASSPHRASE, DEMO_PIN, DEMO_NETWORK, false);
     if (tokenLegacy === null || tokenAbi === null) assert.fail("expected tokens");
     const payloadLegacy = tokenLegacy.slice(6, tokenLegacy.length - 6);
-    const payloadAbi = tokenAbi.slice(6, tokenAbi.length - 6);
-    assert.notStrictEqual(payloadLegacy, payloadAbi, "payloads must differ (legacy vs ABI encoding)");
+    const payloadAbi = tokenAbi;
+    assert.notStrictEqual(payloadLegacy, payloadAbi, "payloads must differ (legacy vs compact encoding)");
   });
 
   test("should generate different results for same naive concatenation (legacy=false)", () => {
@@ -238,13 +251,7 @@ describe("generateToken", () => {
     const token2 = generateToken(passphrase2, pin2, network, false);
 
     if (token1 === null || token2 === null) assert.fail("expected tokens");
-    const payload1 = token1.slice(6, token1.length - 6);
-    const payload2 = token2.slice(6, token2.length - 6);
-    assert.notStrictEqual(
-      payload1,
-      payload2,
-      "payloads must differ even when naive concatenation matches",
-    );
+    assert.notStrictEqual(token1, token2, "v3 payloads must differ even when naive concatenation matches");
   });
 
   test("should return valid token for all networks (legacy=false)", () => {
@@ -299,40 +306,44 @@ describe("generateToken", () => {
 });
 
 describe("parseToken", () => {
-  test("should return { passphrase, pin, network, legacy } for token generated with legacy=false", () => {
+  test("should return { passphrase, pin, network, legacy, version } for token generated with legacy=false (v3)", () => {
     const token = generateToken(DEMO_PASSPHRASE, DEMO_PIN, DEMO_NETWORK, false);
     if (token === null) assert.fail("expected token");
-    const { passphrase, pin, network, legacy } = parseToken(token);
+    const { passphrase, pin, network, legacy, version } = parseToken(token);
     assert.strictEqual(passphrase, DEMO_PASSPHRASE);
     assert.strictEqual(pin, DEMO_PIN);
     assert.strictEqual(network, DEMO_NETWORK);
     assert.strictEqual(legacy, false);
+    assert.strictEqual(version, 3);
   });
 
-  test("should return { passphrase, pin, network, legacy } for token generated with legacy=true", () => {
+  test("should return { passphrase, pin, network, legacy, version } for token generated with legacy=true (v1)", () => {
     const token = generateToken(DEMO_PASSPHRASE, DEMO_PIN, DEMO_NETWORK, true);
     if (token === null) assert.fail("expected token");
-    const { passphrase, pin, network, legacy } = parseToken(token);
+    const { passphrase, pin, network, legacy, version } = parseToken(token);
     assert.strictEqual(passphrase, DEMO_PASSPHRASE);
     assert.strictEqual(pin, DEMO_PIN);
     assert.strictEqual(network, DEMO_NETWORK);
     assert.strictEqual(legacy, true);
+    assert.strictEqual(version, 1);
   });
 
-  test("should parse DEMO_LEGACY_TOKEN and return DEMO_PASSPHRASE, DEMO_PIN, DEMO_NETWORK and legacy=true", () => {
-    const { passphrase, pin, network, legacy } = parseToken(DEMO_LEGACY_TOKEN);
+  test("should parse DEMO_LEGACY_TOKEN as v1", () => {
+    const { passphrase, pin, network, legacy, version } = parseToken(DEMO_LEGACY_TOKEN);
     assert.strictEqual(passphrase, DEMO_PASSPHRASE);
     assert.strictEqual(pin, DEMO_PIN);
     assert.strictEqual(network, DEMO_NETWORK);
     assert.strictEqual(legacy, true);
+    assert.strictEqual(version, 1);
   });
 
-  test("should parse DEMO_DEFAULT_TOKEN and return DEMO_PASSPHRASE, DEMO_PIN, DEMO_NETWORK and legacy=false", () => {
-    const { passphrase, pin, network, legacy } = parseToken(DEMO_DEFAULT_TOKEN);
+  test("should parse DEMO_DEFAULT_TOKEN as v2", () => {
+    const { passphrase, pin, network, legacy, version } = parseToken(DEMO_DEFAULT_TOKEN);
     assert.strictEqual(passphrase, DEMO_PASSPHRASE);
     assert.strictEqual(pin, DEMO_PIN);
     assert.strictEqual(network, DEMO_NETWORK);
     assert.strictEqual(legacy, false);
+    assert.strictEqual(version, 2);
   });
 
   test("should parse token after hash-fragment character normalization", () => {

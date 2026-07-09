@@ -48,10 +48,11 @@ console.log("https://app.mybucks.online/#wallet=" + token);
 
 ```javascript
 import { parseToken } from "@mybucks.online/core";
-const { passphrase, pin, network, legacy } = parseToken(token);
+const { passphrase, pin, network, legacy, version } = parseToken(token);
 console.log("Account credentials are: ", passphrase, pin);
 console.log("Network: ", network);
-console.log("Legacy token: ", legacy); // true if token was in legacy format
+console.log("Legacy token: ", legacy); // true if token was in legacy (v1) format
+console.log("Token format: ", version); // 1 | 2 | 3
 ```
 
 ### 4. Generate random credentials
@@ -80,9 +81,10 @@ To make the wallet more secure and resilient against attacks, and to meet standa
 - The default now derives the salt from the **full passphrase and pin** via a structured encoding and adds a **domain separator** so hashes are bound to this KDF and not reusable in other protocols or versions.
 
 **Token generation (default)**  
-- Legacy encoded the gifting-link token by **concatenating** passphrase, pin and network with a delimiter, which is ambiguous for some inputs.  
-- The default uses a **compact length-prefixed** payload (version byte + lengths + UTF-8 bytes) so there is no concatenation ambiguity and the URL fragment stays short.  
-- `parseToken` accepts both legacy and default token formats automatically and returns `{ passphrase, pin, network, legacy }`, where `legacy` is `true` if the token was in legacy format.
+- Legacy (v1) encoded the gifting-link token by **concatenating** passphrase, pin and network with a delimiter, which is ambiguous for some inputs.  
+- v2 used a **compact length-prefixed** payload (`0x02`) wrapped in random 6+6 padding.  
+- v3 (current default) uses the same compact encoding with version byte `0x03` and **no outer padding** — shorter URLs and stable links for the same credentials.  
+- `parseToken` accepts v1, v2, and v3 automatically and returns `{ passphrase, pin, network, legacy, version }`.
 
 Use `generateHash(passphrase, pin, cb, true)` or `generateToken(passphrase, pin, network, true)` only when you need to match existing legacy wallets or tokens.
 
