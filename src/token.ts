@@ -109,6 +109,43 @@ function parseLegacyDelimiterPayload(decoded: Buffer): {
   };
 }
 
+function isValidCompactPayload(decoded: Buffer): boolean {
+  if (decoded.length < 4) {
+    return false;
+  }
+  const version = decoded[0];
+  if (version !== TOKEN_VERSION_COMPACT_PADDED && version !== TOKEN_VERSION_COMPACT) {
+    return false;
+  }
+
+  let i = 1;
+  const lenP = decoded[i++] as number;
+  if (lenP < PASSPHRASE_MIN_LENGTH || lenP > PASSPHRASE_MAX_LENGTH) {
+    return false;
+  }
+  if (i + lenP > decoded.length) {
+    return false;
+  }
+  i += lenP;
+
+  const lenI = decoded[i++] as number;
+  if (lenI < PIN_MIN_LENGTH || lenI > PIN_MAX_LENGTH) {
+    return false;
+  }
+  if (i + lenI > decoded.length) {
+    return false;
+  }
+  i += lenI;
+
+  const lenN = decoded[i++] as number;
+  if (i + lenN !== decoded.length) {
+    return false;
+  }
+
+  const network = decoded.subarray(i, i + lenN).toString("utf-8");
+  return NETWORKS.some((n) => n === network);
+}
+
 function wrapWithPadding(base64Encoded: string): string {
   const padding = nanoid(TOKEN_PADDING_LENGTH * 2);
   return padding.slice(0, TOKEN_PADDING_LENGTH) + base64Encoded + padding.slice(TOKEN_PADDING_LENGTH);
@@ -204,7 +241,7 @@ export function parseToken(token: string): ParsedToken {
   };
 
   const decodedFull = tryDecode(token);
-  if (decodedFull && decodedFull[0] === TOKEN_VERSION_COMPACT) {
+  if (decodedFull?.[0] === TOKEN_VERSION_COMPACT && isValidCompactPayload(decodedFull)) {
     return {
       ...parseCompactPayload(decodedFull),
       legacy: false,
@@ -212,11 +249,22 @@ export function parseToken(token: string): ParsedToken {
     };
   }
 
+  if (decodedFull?.[0] === TOKEN_VERSION_COMPACT_PADDED && isValidCompactPayload(decodedFull)) {
+    return {
+      ...parseCompactPayload(decodedFull),
+      legacy: false,
+      version: 2,
+    };
+  }
+
   if (token.length >= TOKEN_PADDING_LENGTH * 2) {
     const inner = token.slice(TOKEN_PADDING_LENGTH, token.length - TOKEN_PADDING_LENGTH);
     const decodedInner = tryDecode(inner);
     if (decodedInner) {
-      if (decodedInner[0] === TOKEN_VERSION_COMPACT_PADDED) {
+      if (
+        decodedInner[0] === TOKEN_VERSION_COMPACT_PADDED &&
+        isValidCompactPayload(decodedInner)
+      ) {
         return {
           ...parseCompactPayload(decodedInner),
           legacy: false,

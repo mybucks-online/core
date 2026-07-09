@@ -346,6 +346,34 @@ describe("parseToken", () => {
     assert.strictEqual(version, 2);
   });
 
+  test("should classify padded delimiter token as v1 when inner starts with 0x02", () => {
+    const delimiter = String.fromCharCode(2);
+    const passphrase = `${delimiter}MyAccount12!`;
+    const pin = "909011";
+    const network = "polygon";
+    const token = generateToken(passphrase, pin, network, true);
+    if (token === null) assert.fail("expected token");
+
+    const parsed = parseToken(token);
+    assert.strictEqual(parsed.version, 1);
+    assert.strictEqual(parsed.legacy, true);
+    // v1 delimiter encoding cannot round-trip when passphrase starts with the delimiter byte
+    assert.notStrictEqual(parsed.passphrase, passphrase);
+  });
+
+  test("should not misclassify padded v1 tokens as v3 when full decode starts with 0x03", () => {
+    for (let i = 0; i < 200; i++) {
+      const token = generateToken(DEMO_PASSPHRASE, DEMO_PIN, DEMO_NETWORK, true);
+      if (token === null) assert.fail("expected token");
+
+      const parsed = parseToken(token);
+      assert.strictEqual(parsed.version, 1, `token ${token}`);
+      assert.strictEqual(parsed.passphrase, DEMO_PASSPHRASE);
+      assert.strictEqual(parsed.pin, DEMO_PIN);
+      assert.strictEqual(parsed.network, DEMO_NETWORK);
+    }
+  });
+
   test("should parse token after hash-fragment character normalization", () => {
     const plusToken =
       "tmeNhvAhsxe1lhSWwtJyhZLkQ+LUk2dzZeLi1TI0FPQzwIMWNuZ3I0ZTkHcG9seWdvbg==GB_ha6";
