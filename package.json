@@ -1,6 +1,6 @@
 {
   "name": "@mybucks.online/core",
-  "version": "3.0.8",
+  "version": "3.0.9",
   "description": "Core library for Mybucks.online — a digital cash envelope for the internet. Seedless, disposable wallet primitives: derive keys, generate addresses, and encode/decode gifting-link tokens. Browser-only (no servers, database, or install). Cryptography for micro-gifting, airdrops, campaigns, and instant onboarding.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -74,10 +74,13 @@
     "url": "https://github.com/mybucks-online/core/issues"
   },
   "homepage": "https://mybucks.online",
+  "engines": {
+    "node": ">=24"
+  },
   "dependencies": {
     "buffer": "^6.0.3",
     "ethers": "^6.17.0",
-    "nanoid": "^5.0.9",
+    "nanoid": "^6.0.1",
     "scrypt-js": "^3.0.1",
     "tronweb": "^6.4.0",
     "zxcvbn": "^4.4.2"
